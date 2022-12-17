@@ -1,0 +1,9 @@
+{
+  "deployType": "local",
+  "apiUrl": "https://apidemo.agilite.io",
+  "nodeRedUrl": "https://noderedtesting.agilite.io",
+  "agilite": {
+    "teamId": "deso_creators"
+  },
+  "profileKeys": {}
+}
