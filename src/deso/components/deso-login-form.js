@@ -3,7 +3,8 @@ import { useDispatch } from 'react-redux'
 import { Form, Button, Row, Col, Spin } from 'antd'
 
 import Enums from '../../agilite-react/resources/enums'
-import { desoLogin, getSingleProfile } from '../controller'
+import { desoLogin, getSingleProfile, getDaoBalance } from '../controller'
+import BatchTransactions from '../../batch-transactions/components/app-wrapper'
 
 const DeSoLoginForm = () => {
   const dispatch = useDispatch()
@@ -11,15 +12,30 @@ const DeSoLoginForm = () => {
 
   const handleDesoLogin = async () => {
     let response = null
+    let result = null
     let profile = null
 
     setLoading(true)
 
     try {
       response = await desoLogin()
-      profile = await getSingleProfile(response.publicKeyAdded)
-      dispatch({ type: Enums.reducers.SIGN_IN_DESO })
-      dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
+      profile = await getSingleProfile(response.key)
+      result = await getDaoBalance(profile.Profile.PublicKeyBase58Check)
+      response = { profile, daoBalance: result.daoBalance, desoPrice: result.desoPrice }
+
+      dispatch({
+        type: Enums.reducers.SIGN_IN_DESO,
+        payload: response
+      })
+      dispatch({
+        type: Enums.reducers.ADD_TAB,
+        payload: {
+          key: 'batch_transactions',
+          closable: false,
+          title: '',
+          content: <BatchTransactions />
+        }
+      })
     } catch (e) {
       console.log(e)
     }

@@ -6,6 +6,22 @@ export const desoLogin = () => {
   return new Promise((resolve, reject) => {
     ;(async () => {
       try {
+        const deso = new Deso()
+        const request = 4
+        const response = await deso.identity.login(request)
+        resolve(response)
+      } catch (e) {
+        reject(e)
+        console.log(e)
+      }
+    })()
+  })
+}
+
+export const desoLoginManual = () => {
+  return new Promise((resolve, reject) => {
+    ;(async () => {
+      try {
         window.open('https://identity.deso.org/log-in?accessLevelRequest=4')
 
         window.addEventListener('message', async (e) => {
@@ -68,7 +84,7 @@ export const getDaoBalance = (publicKey) => {
     ;(async () => {
       let hodlerObject = null
       let exchangeObject = null
-      let balance = 0
+      let daoBalance = 0
 
       try {
         hodlerObject = await Axios.post('https://blockproducer.deso.org/api/v0/get-hodlers-for-public-key', {
@@ -81,14 +97,12 @@ export const getDaoBalance = (publicKey) => {
         exchangeObject = await Axios.get('https://blockproducer.deso.org/api/v0/get-exchange-rate')
 
         if (hodlerObject.data.Hodlers.length > 0) {
-          balance = (parseInt(hodlerObject.data.Hodlers[0].BalanceNanosUint256) / 1000000000 / 1000000000).toFixed(0)
+          daoBalance = (parseInt(hodlerObject.data.Hodlers[0].BalanceNanosUint256) / 1000000000 / 1000000000).toFixed(0)
 
-          if (balance < 1) {
-            balance = 0
-          }
+          if (daoBalance < 1) daoBalance = 0
         }
 
-        resolve({ balance, priceDeso: exchangeObject.data.USDCentsPerDeSoExchangeRate / 100 })
+        resolve({ daoBalance, desoPrice: exchangeObject.data.USDCentsPerDeSoExchangeRate / 100 })
       } catch (e) {
         reject(e)
         console.log(e)

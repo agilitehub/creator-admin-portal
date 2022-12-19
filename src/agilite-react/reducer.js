@@ -81,12 +81,19 @@ const reducer = (state = State, action) => {
         rootContent: <SignIn />
       }
     case Enums.reducers.SIGN_IN_DESO:
-      return {
-        ...state,
-        deso: {
+      tmpObj = action.payload
+      if (tmpObj) {
+        tmpObj.loggedIn = true
+      } else {
+        tmpObj = {
           ...state.deso,
           loggedIn: true
         }
+      }
+
+      return {
+        ...state,
+        deso: tmpObj
       }
     case Enums.reducers.SIGN_OUT_DESO:
       return {
@@ -104,12 +111,13 @@ const reducer = (state = State, action) => {
           profile: action.payload
         }
       }
-    case Enums.reducers.SET_DESO_PRICE:
+    case Enums.reducers.SET_DESO_DATA:
       return {
         ...state,
         deso: {
           ...state.deso,
-          price: action.payload
+          desoPrice: action.payload.desoPrice,
+          daoBalance: action.payload.daoBalance
         }
       }
     default:
