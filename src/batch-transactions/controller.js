@@ -1,7 +1,6 @@
 import Axios from 'agilite-utils/axios'
 import Enums from '../utils/enums'
-
-// import Deso from 'deso-protocol'
+import { getDeSo } from '../deso/controller'
 
 export const getHodlers = (Username, IsDAOCoin) => {
   return new Promise((resolve, reject) => {
@@ -37,7 +36,6 @@ export const getHodlers = (Username, IsDAOCoin) => {
 export const payCeatorHodler = (senderKey, receiverKey, amount) => {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      // const deso = new Deso()
       let request = null
 
       try {
@@ -48,9 +46,7 @@ export const payCeatorHodler = (senderKey, receiverKey, amount) => {
           MinFeeRateNanosPerKB: 1000
         }
 
-        console.log(request)
-
-        // await deso.wallet.sendDesoRequest(request)
+        await getDeSo().wallet.sendDesoRequest(request)
 
         resolve()
       } catch (e) {
@@ -64,7 +60,6 @@ export const payCeatorHodler = (senderKey, receiverKey, amount) => {
 export const payDaoHodler = (senderKey, receiverKey, amount) => {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      // const deso = new Deso()
       let request = null
 
       try {
@@ -75,9 +70,7 @@ export const payDaoHodler = (senderKey, receiverKey, amount) => {
           MinFeeRateNanosPerKB: 1000
         }
 
-        console.log(request)
-
-        // await deso.wallet.sendDesoRequest(request)
+        await getDeSo().wallet.sendDesoRequest(request)
 
         resolve()
       } catch (e) {

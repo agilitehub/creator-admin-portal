@@ -2,16 +2,20 @@ import React, { memo, useState } from 'react'
 import { Row, Col, Card, Select, Button, Popconfirm, Input, message, Table } from 'antd'
 import theme from '../../agilite-react/resources/theme'
 import { getHodlers, payCeatorHodler, payDaoHodler } from '../controller'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { getDaoBalance, getSingleProfile } from '../../deso/controller'
+import Enums from '../../agilite-react/resources/enums'
 
 const _BatchTransactionsForm = () => {
+  const dispatch = useDispatch()
   const desoState = useSelector((state) => state.agiliteReact.deso)
   const [transactionType, setTransactionType] = useState('')
   const [hodlers, setHodlers] = useState([])
   const [amount, setAmount] = useState(0)
   const [coinTotal, setCoinTotal] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [isExecuting, setIsExecuting] = useState(false)
 
   const handleTransactionTypeChange = async (value) => {
     let tmpHodlers = []
@@ -90,7 +94,7 @@ const _BatchTransactionsForm = () => {
         <Col span={2}>Batch Transactions</Col>
         <Col>
           <Select
-            disabled={!desoState.loggedIn}
+            disabled={!desoState.loggedIn || isExecuting}
             onChange={(value) => handleTransactionTypeChange(value)}
             value={transactionType}
             style={{ width: 300 }}
@@ -145,22 +149,49 @@ const _BatchTransactionsForm = () => {
     return tmpAmount * (calculatePercOwnership(value, tmpCoinTotal) / 100)
   }
 
-  const handleExecute = () => {
+  const handleExecute = async () => {
     let tmpHodlers = hodlers
-    let amount = null
+    let daoData = null
+    let profile = null
 
-    hodlers.map(async (hodler, index) => {
-      if (transactionType === 'dao') {
-        amount = calculateEstimatePayment(hexToInt(hodler.BalanceNanosUint256) / 1000000000 / 1000000000)
-        await payDaoHodler(desoState.profile.Profile.PublicKeyBase58Check, hodler.HODLerPublicKeyBase58Check, amount)
-      } else {
-        amount = calculateEstimatePayment(hodler.BalanceNanos / 1000000000)
-        await payCeatorHodler(desoState.profile.Profile.PublicKeyBase58Check, hodler.HODLerPublicKeyBase58Check, amount)
+    setLoading(true)
+    setIsExecuting(true)
+
+    for (const hodler of hodlers) {
+      try {
+        if (transactionType === 'dao') {
+          await payDaoHodler(
+            desoState.profile.Profile.PublicKeyBase58Check,
+            hodler.HODLerPublicKeyBase58Check,
+            hodler.estimatedPayment
+          )
+        } else {
+          await payCeatorHodler(
+            desoState.profile.Profile.PublicKeyBase58Check,
+            hodler.HODLerPublicKeyBase58Check,
+            hodler.estimatedPayment
+          )
+        }
+
+        hodler.paid = true
+      } catch (e) {
+        hodler.paid = false
       }
+    }
 
-      tmpHodlers[index].paid = true
-      setHodlers(tmpHodlers)
+    setHodlers(tmpHodlers)
+
+    profile = await getSingleProfile(desoState.profile.Profile.PublicKeyBase58Check)
+    daoData = await getDaoBalance(desoState.profile.Profile.PublicKeyBase58Check)
+    dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
+
+    dispatch({
+      type: Enums.reducers.SET_DESO_DATA,
+      payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance }
     })
+
+    setLoading(false)
+    setIsExecuting(false)
   }
 
   // eslint-disable-next-line
@@ -182,7 +213,7 @@ const _BatchTransactionsForm = () => {
               </center>
               <Input
                 addonBefore='$DESO'
-                disabled={transactionType ? false : true}
+                disabled={transactionType && !isExecuting ? false : true}
                 placeholder='Amount'
                 type='number'
                 value={amount}
@@ -198,8 +229,10 @@ const _BatchTransactionsForm = () => {
                   okText='Yes'
                   cancelText='No'
                   onConfirm={handleExecute}
+                  disabled={isExecuting}
                 >
                   <Button
+                    disabled={isExecuting}
                     style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success, marginLeft: 20 }}
                   >
                     Execute Payment
@@ -238,6 +271,7 @@ const _BatchTransactionsForm = () => {
                     dataIndex: 'paid',
                     key: 'status',
                     render: (value) => {
+                      console.log('Status', value)
                       if (value === true) {
                         return <CheckCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.success }} />
                       } else if (value === false) {

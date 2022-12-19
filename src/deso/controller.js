@@ -167,3 +167,7 @@ export const payDaoCoin = (senderKey, receiverKey, amount, taskTransactionId, gh
     })()
   })
 }
+
+export const getDeSo = () => {
+  return deso
+}
