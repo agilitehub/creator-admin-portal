@@ -4,6 +4,7 @@ import Theme from './resources/theme'
 
 // Components
 import DeSoLoginForm from '../deso/components/deso-login-form'
+import DesoToolbar from '../deso/components/deso-toolbar'
 
 const state = {
   tabNavigation: {
@@ -29,7 +30,7 @@ const state = {
     enabled: true,
     title: process.env.REACT_APP_NAME,
     customMenus: {
-      content: null
+      content: <DesoToolbar />
     }
   },
   theme: Theme,
@@ -37,7 +38,8 @@ const state = {
   deso: {
     loggedIn: false,
     profile: null,
-    price: 0
+    desoPrice: 0,
+    daoBalance: 0
   }
 }
 

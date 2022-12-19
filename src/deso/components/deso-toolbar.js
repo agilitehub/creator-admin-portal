@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import Enums from '../../agilite-react/resources/enums'
 import theme from '../../agilite-react/resources/theme'
-import { desoLogin, desoLogout, getDaoBalance, getSingleProfile } from '../controller'
+import { desoLogout, getDaoBalance, getSingleProfile } from '../controller'
+import DeSoLoginForm from './deso-login-form'
 
 const DesoLogin = () => {
   const desoState = useSelector((state) => state.agiliteReact.deso)
+  const loggedIn = useSelector((state) => state.agiliteReact.deso.loggedIn)
   const dispatch = useDispatch()
-  const [daoBalance, setDaoBalance] = useState(0)
-  const [desoPrice, setDesoPrice] = useState(0)
   const [loading, setLoading] = useState(false)
 
   const handleRefresh = async () => {
@@ -29,29 +29,20 @@ const DesoLogin = () => {
     setLoading(false)
   }
 
-  const handleDesoLogin = async () => {
-    let response = null
-    let profile = null
-
-    setLoading(true)
-
-    try {
-      response = await desoLogin()
-      profile = await getSingleProfile(response.publicKeyAdded)
-      await handleGetDoaBalance(profile.Profile.PublicKeyBase58Check)
-      dispatch({ type: Enums.reducers.SIGN_IN_DESO })
-      dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
-    } catch (e) {
-      console.log(e)
-    }
-
-    setLoading(false)
-  }
-
   const handleDesoLogout = async () => {
     try {
       await desoLogout(desoState.profile.Profile.PublicKeyBase58Check)
       dispatch({ type: Enums.reducers.SIGN_OUT_DESO })
+
+      dispatch({
+        type: Enums.reducers.ADD_TAB,
+        payload: {
+          key: 'deso_login',
+          closable: false,
+          title: '',
+          content: <DeSoLoginForm />
+        }
+      })
     } catch (e) {
       console.log(e)
     }
@@ -62,9 +53,11 @@ const DesoLogin = () => {
 
     try {
       data = await getDaoBalance(publicKey)
-      setDaoBalance(data.balance)
-      setDesoPrice(data.priceDeso)
-      dispatch({ type: Enums.reducers.SET_DESO_PRICE, payload: data.priceDeso })
+
+      dispatch({
+        type: Enums.reducers.SET_DESO_DATA,
+        payload: { desoPrice: data.desoPrice, daoBalance: data.daoBalance }
+      })
     } catch (e) {
       console.log(e)
     }
@@ -74,46 +67,40 @@ const DesoLogin = () => {
     <div>
       {!loading ? (
         <Row>
-          {desoState.loggedIn ? (
+          {loggedIn ? (
             <Row justify='space-between'>
               <Col style={{ marginRight: 20, cursor: 'auto' }}>
                 <div>Username: {desoState?.profile?.Profile?.Username}</div>
               </Col>
               <Col style={{ marginRight: 20, cursor: 'auto' }}>
-                <div>DAO Coins: {daoBalance}</div>
+                <div>DAO Coins: {desoState.daoBalance}</div>
               </Col>
               <Col style={{ marginRight: 20, cursor: 'auto' }}>
                 <div>
                   DeSo Balance:{' '}
                   {(desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000).toFixed(2) +
                     ' = $' +
-                    Math.floor((desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000) * desoPrice) +
+                    Math.floor((desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000) * desoState.desoPrice) +
                     ' ($' +
-                    desoPrice +
+                    desoState.desoPrice +
                     '/$DESO)'}
                 </div>
               </Col>
               <Col style={{ marginRight: 20 }}>
                 <Button type='primary' onClick={handleDesoLogout}>
-                  DeSo Logout
+                  Logout
                 </Button>
               </Col>
             </Row>
-          ) : (
-            <Col>
-              <Button type='primary' onClick={handleDesoLogin}>
-                DeSo Login
-              </Button>
-            </Col>
-          )}
+          ) : null}
           <Col>
-            {desoState.loggedIn ? (
+            {loggedIn ? (
               <Button
                 type='default'
                 onClick={() => handleRefresh()}
                 style={{ color: 'white', fontWeight: 'bold', backgroundColor: theme.primary }}
               >
-                Refresh
+                Refresh Values
               </Button>
             ) : null}
           </Col>

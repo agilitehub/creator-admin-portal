@@ -5,7 +5,7 @@ import { closeTab, loadContent } from './controller'
 // Components
 import SignIn from '../examples/basic-sign-in-app/components/sign-in'
 import BatchTransactions from '../batch-transactions/components/app-wrapper'
-import DesoLogin from '../deso/components/deso-login'
+import DeSoToolbar from '../deso/components/deso-toolbar'
 
 const reducer = (state = State, action) => {
   let tmpObj = null
@@ -62,7 +62,7 @@ const reducer = (state = State, action) => {
         toolbar: {
           ...state.toolbar,
           customMenus: {
-            content: <DesoLogin />
+            content: <DeSoToolbar />
           }
         },
         rootContent: () => <BatchTransactions />
