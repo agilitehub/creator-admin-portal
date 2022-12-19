@@ -1,17 +1,23 @@
 import Thunk from 'redux-thunk'
-import { createStore, combineReducers, applyMiddleware } from 'redux'
+import { legacy_createStore as createStore, combineReducers, applyMiddleware } from 'redux'
 import { initCustomReducers } from './agilite-react-setup'
+import { composeWithDevTools } from 'redux-devtools-extension'
 
 // Reducers
 import agiliteReactReducer from './agilite-react/reducer'
-
 const customReducers = initCustomReducers()
-const store = createStore(
+
+const initialState = {}
+const devTools =
+  process.env.NODE_ENV === 'production' ? applyMiddleware(Thunk) : composeWithDevTools(applyMiddleware(Thunk))
+
+export const store = createStore(
   combineReducers({
     agiliteReact: agiliteReactReducer,
     ...customReducers
   }),
-  applyMiddleware(Thunk)
+  initialState,
+  devTools
 )
 
 export default store
