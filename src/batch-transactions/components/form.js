@@ -8,41 +8,80 @@ import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 const _BatchTransactionsForm = () => {
   const desoState = useSelector((state) => state.agiliteReact.deso)
   const [transactionType, setTransactionType] = useState('')
-  const [amount, setAmount] = useState(0)
   const [hodlers, setHodlers] = useState([])
+  const [amount, setAmount] = useState(0)
+  const [coinTotal, setCoinTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
   const handleTransactionTypeChange = async (value) => {
     let tmpHodlers = []
+    let finalHodlers = []
+    let tmpCoinTotal = 0
     let isDAOCoin = null
-
-    setTransactionType(value)
-    setLoading(true)
+    let noOfCoins = 0
 
     // Make Requests
     try {
+      if (value === transactionType) return
+
+      handleReset(value)
+      if (!value) return
+
+      setLoading(true)
       isDAOCoin = value === 'dao'
       tmpHodlers = await getHodlers(desoState.profile.Profile.Username, isDAOCoin)
 
       if (tmpHodlers.Hodlers.length > 0) {
-        let deleteIndex = null
+        // Determine Coin Total and valid Hodlers
+        tmpHodlers.Hodlers.map((entry) => {
+          // Ignore entry if is current logged in user
+          if (entry.ProfileEntryResponse.Username !== desoState.profile.Profile.Username) {
+            // Determine Number of Coins
+            if (isDAOCoin) {
+              noOfCoins = entry.BalanceNanosUint256
+              noOfCoins = hexToInt(noOfCoins)
+              noOfCoins = noOfCoins / 1000000000 / 1000000000
+            } else {
+              noOfCoins = entry.BalanceNanos
+              noOfCoins = noOfCoins / 1000000000
+            }
 
-        tmpHodlers.Hodlers.map((entry, index) => {
-          if (entry.ProfileEntryResponse.Username === desoState.profile.Profile.Username) {
-            deleteIndex = index
+            // decimalCount = noOfCoins.countDecimals()
+            entry.noOfCoins = noOfCoins
+            tmpCoinTotal += noOfCoins
+            finalHodlers.push(entry)
           }
+
           return null
         })
 
-        tmpHodlers.Hodlers.splice(deleteIndex, 1)
+        updateHolderAmounts(finalHodlers, tmpCoinTotal)
       }
 
-      setHodlers(tmpHodlers.Hodlers)
+      setHodlers(finalHodlers)
+      setCoinTotal(tmpCoinTotal)
     } catch (e) {
       message.error(e)
     }
 
     setLoading(false)
+  }
+
+  const updateHolderAmounts = (tmpHodlers, tmpCoinTotal, tmpAmount) => {
+    let estimatedPayment = 0
+
+    // Determine % Ownership and Estimated Payment
+    tmpHodlers.map((entry) => {
+      // Determine % Ownership
+      entry.percentOwnership = calculatePercOwnership(entry.noOfCoins, tmpCoinTotal)
+
+      // Determine Estimated Payment
+      if (tmpAmount > 0) estimatedPayment = calculateEstimatePayment(entry.noOfCoins, tmpCoinTotal, tmpAmount)
+      // decimalCount = estimatedPayment.countDecimals()
+      entry.estimatedPayment = estimatedPayment
+
+      return null
+    })
   }
 
   const generateActions = () => {
@@ -75,34 +114,35 @@ const _BatchTransactionsForm = () => {
     )
   }
 
-  const handleReset = () => {
-    setTransactionType('')
+  const handleReset = (tmpTransactionType = '') => {
+    setTransactionType(tmpTransactionType)
     setHodlers([])
     setAmount(0)
+    setCoinTotal(0)
+  }
+
+  const handleAmount = (e) => {
+    const amount = parseFloat(e.target.value)
+    const desoBalance = desoState.profile.Profile.DESOBalanceNanos / 1000000000
+
+    if (desoBalance > amount) {
+      setAmount(amount)
+      updateHolderAmounts(hodlers, coinTotal, amount)
+    } else {
+      message.error('Amount cannot be higher than $DESO Balance')
+    }
   }
 
   const hexToInt = (hex) => {
     return parseInt(hex, 16)
   }
 
-  const calculatePercOwnership = (value) => {
-    let total = 0
-
-    hodlers.map((entry) => {
-      if (transactionType === 'dao') {
-        total = total + hexToInt(entry.BalanceNanosUint256) / 1000000000 / 1000000000
-      } else {
-        total = total + entry.BalanceNanos / 1000000000
-      }
-
-      return null
-    })
-
-    return (value / total) * 100
+  const calculatePercOwnership = (value, tmpCoinTotal) => {
+    return (value / tmpCoinTotal) * 100
   }
 
-  const calculateEstimatePayment = (value) => {
-    return amount * (calculatePercOwnership(value) / 100)
+  const calculateEstimatePayment = (value, tmpCoinTotal, tmpAmount) => {
+    return tmpAmount * (calculatePercOwnership(value, tmpCoinTotal) / 100)
   }
 
   const handleExecute = () => {
@@ -146,9 +186,7 @@ const _BatchTransactionsForm = () => {
                 placeholder='Amount'
                 type='number'
                 value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value)
-                }}
+                onChange={handleAmount}
               />
             </Col>
           </Row>
@@ -156,7 +194,7 @@ const _BatchTransactionsForm = () => {
             <Row justify='center' style={{ marginTop: 10 }}>
               <Col>
                 <Popconfirm
-                  title='Are you sure you want to execute this Batch Transaction?'
+                  title='Are you sure you want to execute payments to the below Coin Holders?'
                   okText='Yes'
                   cancelText='No'
                   onConfirm={handleExecute}
@@ -164,7 +202,7 @@ const _BatchTransactionsForm = () => {
                   <Button
                     style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success, marginLeft: 20 }}
                   >
-                    Execute
+                    Execute Payment
                   </Button>
                 </Popconfirm>
               </Col>
@@ -179,63 +217,20 @@ const _BatchTransactionsForm = () => {
                   { title: 'Username', dataIndex: ['ProfileEntryResponse', 'Username'], key: 'username' },
                   {
                     title: 'No of Coins',
-                    dataIndex: transactionType === 'dao' ? 'BalanceNanosUint256' : 'BalanceNanos',
-                    key: 'balance',
-                    render: (value) => {
-                      let returnValue = value
-                      let decimalCount = 0
-
-                      if (transactionType === 'dao') {
-                        returnValue = hexToInt(value)
-                        returnValue = returnValue / 1000000000 / 1000000000
-                      } else {
-                        returnValue = returnValue / 1000000000
-                      }
-
-                      decimalCount = returnValue.countDecimals()
-                      return returnValue.toFixed(decimalCount)
-                    }
+                    dataIndex: 'noOfCoins',
+                    key: 'noOfCoins'
                   },
                   {
                     title: '% Ownership',
-                    dataIndex: transactionType === 'dao' ? 'BalanceNanosUint256' : 'BalanceNanos',
-                    key: 'username',
-                    render: (value) => {
-                      let returnValue = value
-
-                      if (transactionType === 'dao') {
-                        returnValue = hexToInt(value)
-                        returnValue = returnValue / 1000000000 / 1000000000
-                      } else {
-                        returnValue = returnValue / 1000000000
-                      }
-
-                      return calculatePercOwnership(returnValue).toFixed(2)
-                    }
+                    dataIndex: 'percentOwnership',
+                    key: 'percentOwnership'
                   },
                   {
                     title: 'Eastimated Payment ($DESO)',
-                    dataIndex: transactionType === 'dao' ? 'BalanceNanosUint256' : 'BalanceNanos',
+                    dataIndex: 'estimatedPayment',
                     key: 'estimatedPayment',
                     render: (value) => {
-                      let returnValue = value
-                      let decimalCount = 0
-
-                      if (transactionType === 'dao') {
-                        returnValue = hexToInt(value)
-                        returnValue = returnValue / 1000000000 / 1000000000
-                      } else {
-                        returnValue = returnValue / 1000000000
-                      }
-
-                      returnValue = calculateEstimatePayment(returnValue)
-                      decimalCount = returnValue.countDecimals()
-
-                      return (
-                        <span style={{ color: theme.twitterBootstrap.primary }}>
-                          {returnValue.toFixed(decimalCount)}
-                        </span>
-                      )
+                      return <span style={{ color: theme.twitterBootstrap.primary }}>{value}</span>
                     }
                   },
                   {
