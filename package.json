@@ -35,12 +35,12 @@
     "express": "4.18.2"
   },
   "devDependencies": {
-    "deso-protocol": "^0.7.22",
     "@ant-design/icons": "4.8.0",
     "@types/agilite": "7.3.0",
     "agilite": "7.5.0",
     "agilite-react": "2.1.2",
     "antd": "4.16.13",
+    "deso-protocol": "^0.7.25",
     "immutability-helper": "3.1.1",
     "react": "17.0.2",
     "react-dnd": "14.0.5",

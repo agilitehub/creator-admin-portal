@@ -2,11 +2,12 @@ import Axios from 'agilite-utils/axios'
 import Deso from 'deso-protocol'
 import Config from '../config/config.json'
 
+const deso = new Deso()
+
 export const desoLogin = () => {
   return new Promise((resolve, reject) => {
     ;(async () => {
       try {
-        const deso = new Deso()
         const request = 4
         const response = await deso.identity.login(request)
         resolve(response)
@@ -43,7 +44,6 @@ export const desoLoginManual = () => {
 export const desoLogout = (publicKey) => {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      const deso = new Deso()
       let response = null
 
       try {
@@ -60,7 +60,6 @@ export const desoLogout = (publicKey) => {
 export const getSingleProfile = (key) => {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      const deso = new Deso()
       let request = null
       let response = null
 
@@ -114,7 +113,6 @@ export const getDaoBalance = (publicKey) => {
 export const payDeso = (senderKey, receiverKey, amount, taskTransactionId, ghostId, taskId) => {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      const deso = new Deso()
       let request = null
       let response = null
 
@@ -143,7 +141,6 @@ export const payDeso = (senderKey, receiverKey, amount, taskTransactionId, ghost
 export const payDaoCoin = (senderKey, receiverKey, amount, taskTransactionId, ghostId, taskId) => {
   return new Promise((resolve, reject) => {
     ;(async () => {
-      const deso = new Deso()
       let request = null
       let response = null
 
