@@ -107,7 +107,7 @@ const _BatchTransactionsForm = () => {
             title='Are you sure you want to reset this Batch Transaction?'
             okText='Yes'
             cancelText='No'
-            onConfirm={handleReset}
+            onConfirm={() => handleReset()}
           >
             <Button style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.danger, marginLeft: 20 }}>
               Reset
