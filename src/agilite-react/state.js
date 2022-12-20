@@ -28,7 +28,7 @@ const state = {
   },
   toolbar: {
     enabled: true,
-    title: process.env.REACT_APP_NAME,
+    title: '',
     customMenus: {
       content: <DesoToolbar />
     }

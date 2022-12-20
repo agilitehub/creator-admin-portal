@@ -93,29 +93,37 @@ const _BatchTransactionsForm = () => {
 
   const generateActions = () => {
     return (
-      <Row justify='space-between'>
-        <Col span={2}>Batch Transactions</Col>
-        <Col>
-          <Select
-            disabled={!desoState.loggedIn || isExecuting}
-            onChange={(value) => handleTransactionTypeChange(value)}
-            value={transactionType}
-            style={{ width: 300 }}
-          >
-            <Select.Option value=''>- Select Transaction Type -</Select.Option>
-            <Select.Option value='creator'>Pay Creator Coin Holders</Select.Option>
-            <Select.Option value='dao'>Pay DAO Coin Holders</Select.Option>
-          </Select>
-          <Popconfirm
-            title='Are you sure you want to reset this Batch Transaction?'
-            okText='Yes'
-            cancelText='No'
-            onConfirm={() => handleReset()}
-          >
-            <Button style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.danger, marginLeft: 20 }}>
-              Reset
-            </Button>
-          </Popconfirm>
+      <Row>
+        <Col xs={24} md={6}>
+          <center>
+            <h3>Batch Payments</h3>
+          </center>
+        </Col>
+        <Col xs={24} md={12}>
+          <center>
+            <Select
+              disabled={!desoState.loggedIn || isExecuting}
+              onChange={(value) => handleTransactionTypeChange(value)}
+              value={transactionType}
+              style={{ width: 300 }}
+            >
+              <Select.Option value=''>- Select Transaction Type -</Select.Option>
+              <Select.Option value='creator'>Pay Creator Coin Holders</Select.Option>
+              <Select.Option value='dao'>Pay DAO Coin Holders</Select.Option>
+            </Select>
+          </center>
+        </Col>
+        <Col xs={24} md={6}>
+          <center>
+            <Popconfirm
+              title='Are you sure you want to reset this Batch Transaction?'
+              okText='Yes'
+              cancelText='No'
+              onConfirm={() => handleReset()}
+            >
+              <Button style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.danger }}>Reset</Button>
+            </Popconfirm>
+          </center>
         </Col>
       </Row>
     )
@@ -253,10 +261,23 @@ const _BatchTransactionsForm = () => {
 
   return (
     <Row justify='center'>
-      <Col span={16}>
-        <Card type='inner' title={generateActions()}>
+      <Col xs={24} sm={22} md={20} lg={16} xl={12}>
+        <Card type='inner' title={generateActions()} style={{ marginTop: 20, padding: '16px 5px' }}>
+          <Row>
+            <Col style={{ cursor: 'auto', marginLeft: 10 }}>
+              <span style={{ fontSize: 15 }}>
+                <b>DeSo Balance: </b>
+              </span>
+              {(desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000).toFixed(2) +
+                ' (~$' +
+                Math.floor((desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000) * desoState.desoPrice) +
+                ') - $' +
+                desoState.desoPrice +
+                ' Per $DESO'}
+            </Col>
+          </Row>
           <Row justify='center'>
-            <Col span={4}>
+            <Col xs={16} md={12} lg={10} xl={8}>
               <center>
                 <span style={{ fontSize: 15 }}>
                   <b>Amount To Pay</b>
@@ -292,54 +313,51 @@ const _BatchTransactionsForm = () => {
               </Col>
             </Row>
           ) : null}
-          <Row style={{ marginTop: 20 }}>
-            <Col span={24}>
-              <Table
-                dataSource={hodlers}
-                loading={loading}
-                columns={[
-                  { title: 'Username', dataIndex: ['ProfileEntryResponse', 'Username'], key: 'username' },
-                  {
-                    title: 'No of Coins',
-                    dataIndex: 'noOfCoins',
-                    key: 'noOfCoins'
-                  },
-                  {
-                    title: '% Ownership',
-                    dataIndex: 'percentOwnership',
-                    key: 'percentOwnership'
-                  },
-                  {
-                    title: 'Eastimated Payment ($DESO)',
-                    dataIndex: 'estimatedPayment',
-                    key: 'estimatedPayment',
-                    render: (value) => {
-                      return <span style={{ color: theme.twitterBootstrap.primary }}>{value}</span>
-                    }
-                  },
-                  {
-                    title: 'Status',
-                    dataIndex: 'status',
-                    key: 'status',
-                    render: (value) => {
-                      if (value === 'Paid') {
-                        return <CheckCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.success }} />
-                      } else if (value.indexOf('Error:') > -1) {
-                        return (
-                          <Popover content={<p>value</p>} title='DeSo Error'>
-                            <CloseCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.danger }} />
-                          </Popover>
-                        )
-                      } else {
-                        return <span style={{ color: theme.twitterBootstrap.info }}>{value}</span>
-                      }
-                    }
+          <Table
+            dataSource={hodlers}
+            loading={loading}
+            style={{ marginTop: 20, marginLeft: 0 }}
+            columns={[
+              { title: 'User', dataIndex: ['ProfileEntryResponse', 'Username'], key: 'username' },
+              {
+                title: 'Coins',
+                dataIndex: 'noOfCoins',
+                key: 'noOfCoins'
+              },
+              {
+                title: '% Ownership',
+                dataIndex: 'percentOwnership',
+                key: 'percentOwnership'
+              },
+              {
+                title: 'Payment ($DESO)',
+                dataIndex: 'estimatedPayment',
+                key: 'estimatedPayment',
+                render: (value) => {
+                  return <span style={{ color: theme.twitterBootstrap.primary }}>{value}</span>
+                }
+              },
+              {
+                title: 'Status',
+                dataIndex: 'status',
+                key: 'status',
+                render: (value) => {
+                  if (value === 'Paid') {
+                    return <CheckCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.success }} />
+                  } else if (value.indexOf('Error:') > -1) {
+                    return (
+                      <Popover content={<p>value</p>} title='DeSo Error'>
+                        <CloseCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.danger }} />
+                      </Popover>
+                    )
+                  } else {
+                    return <span style={{ color: theme.twitterBootstrap.info }}>{value}</span>
                   }
-                ]}
-                pagination={false}
-              />
-            </Col>
-          </Row>
+                }
+              }
+            ]}
+            pagination={false}
+          />
         </Card>
       </Col>
     </Row>

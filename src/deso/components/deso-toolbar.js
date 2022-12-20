@@ -66,45 +66,29 @@ const DesoLogin = () => {
   return (
     <div>
       {!loading ? (
-        <Row>
+        <div>
           {loggedIn ? (
             <Row justify='space-between'>
               <Col style={{ marginRight: 20, cursor: 'auto' }}>
                 <div>Username: {desoState?.profile?.Profile?.Username}</div>
-              </Col>
-              <Col style={{ marginRight: 20, cursor: 'auto' }}>
-                <div>DAO Coins: {desoState.daoBalance}</div>
-              </Col>
-              <Col style={{ marginRight: 20, cursor: 'auto' }}>
-                <div>
-                  DeSo Balance:{' '}
-                  {(desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000).toFixed(2) +
-                    ' = $' +
-                    Math.floor((desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000) * desoState.desoPrice) +
-                    ' ($' +
-                    desoState.desoPrice +
-                    '/$DESO)'}
-                </div>
               </Col>
               <Col style={{ marginRight: 20 }}>
                 <Button type='primary' onClick={handleDesoLogout}>
                   Logout
                 </Button>
               </Col>
+              <Col>
+                <Button
+                  type='default'
+                  onClick={() => handleRefresh()}
+                  style={{ color: 'white', fontWeight: 'bold', backgroundColor: theme.primary }}
+                >
+                  Refresh
+                </Button>
+              </Col>
             </Row>
           ) : null}
-          <Col>
-            {loggedIn ? (
-              <Button
-                type='default'
-                onClick={() => handleRefresh()}
-                style={{ color: 'white', fontWeight: 'bold', backgroundColor: theme.primary }}
-              >
-                Refresh Values
-              </Button>
-            ) : null}
-          </Col>
-        </Row>
+        </div>
       ) : (
         <Spin />
       )}
