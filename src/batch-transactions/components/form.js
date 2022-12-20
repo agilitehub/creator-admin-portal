@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react'
-import { Row, Col, Card, Select, Button, Popconfirm, Input, message, Table } from 'antd'
+import { Row, Col, Card, Select, Button, Popconfirm, Input, message, Table, Popover } from 'antd'
 import theme from '../../agilite-react/resources/theme'
 import { getHodlers, payCeatorHodler, payDaoHodler } from '../controller'
 import { useDispatch, useSelector } from 'react-redux'
@@ -40,6 +40,9 @@ const _BatchTransactionsForm = () => {
         tmpHodlers.Hodlers.map((entry) => {
           // Ignore entry if is current logged in user
           if (entry.ProfileEntryResponse.Username !== desoState.profile.Profile.Username) {
+            // Set Defaults
+            entry.status = ''
+
             // Determine Number of Coins
             if (isDAOCoin) {
               noOfCoins = entry.BalanceNanosUint256
@@ -150,48 +153,96 @@ const _BatchTransactionsForm = () => {
   }
 
   const handleExecute = async () => {
-    let tmpHodlers = hodlers
+    let tmpHodlers = null
     let daoData = null
     let profile = null
+    let functionToCall = null
 
     setLoading(true)
     setIsExecuting(true)
 
-    for (const hodler of hodlers) {
-      try {
-        if (transactionType === 'dao') {
-          await payDaoHodler(
-            desoState.profile.Profile.PublicKeyBase58Check,
-            hodler.HODLerPublicKeyBase58Check,
-            hodler.estimatedPayment
-          )
-        } else {
-          await payCeatorHodler(
-            desoState.profile.Profile.PublicKeyBase58Check,
-            hodler.HODLerPublicKeyBase58Check,
-            hodler.estimatedPayment
-          )
-        }
-
-        hodler.paid = true
-      } catch (e) {
-        hodler.paid = false
+    // Reset Statuses
+    tmpHodlers = hodlers.map((tmpHodler) => {
+      return {
+        ...tmpHodler,
+        status: ''
       }
-    }
+    })
 
     setHodlers(tmpHodlers)
 
-    profile = await getSingleProfile(desoState.profile.Profile.PublicKeyBase58Check)
-    daoData = await getDaoBalance(desoState.profile.Profile.PublicKeyBase58Check)
-    dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
+    if (transactionType === 'dao') {
+      functionToCall = payDaoHodler
+    } else {
+      functionToCall = payCeatorHodler
+    }
 
-    dispatch({
-      type: Enums.reducers.SET_DESO_DATA,
-      payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance }
+    handleExecuteExtended(0, tmpHodlers, functionToCall, async (err) => {
+      if (err) return message.error(err.message)
+
+      profile = await getSingleProfile(desoState.profile.Profile.PublicKeyBase58Check)
+      daoData = await getDaoBalance(desoState.profile.Profile.PublicKeyBase58Check)
+      dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
+
+      dispatch({
+        type: Enums.reducers.SET_DESO_DATA,
+        payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance }
+      })
+
+      setLoading(false)
+      setIsExecuting(false)
+    })
+  }
+
+  const handleExecuteExtended = (index, updatedHolders, functionToCall, callback) => {
+    let publicKey = null
+    let estimatedPayment = null
+    let status = ''
+
+    updatedHolders = updatedHolders.map((tmpHodler, tmpIndex) => {
+      if (tmpIndex === index) {
+        publicKey = tmpHodler.HODLerPublicKeyBase58Check
+        estimatedPayment = tmpHodler.estimatedPayment
+
+        return {
+          ...tmpHodler,
+          status: 'Processing...'
+        }
+      } else {
+        return tmpHodler
+      }
     })
 
-    setLoading(false)
-    setIsExecuting(false)
+    setHodlers(updatedHolders)
+
+    functionToCall(desoState.profile.Profile.PublicKeyBase58Check, publicKey, estimatedPayment)
+      .then(() => {
+        status = 'Paid'
+      })
+      .catch((e) => {
+        status = 'Error: ' + (e.message || e)
+      })
+      .finally(() => {
+        updatedHolders = updatedHolders.map((tmpHodler, tmpIndex) => {
+          if (tmpIndex === index) {
+            return {
+              ...tmpHodler,
+              status
+            }
+          } else {
+            return tmpHodler
+          }
+        })
+
+        setHodlers(updatedHolders)
+        index++
+
+        if (index < updatedHolders.length) {
+          handleExecuteExtended(index, updatedHolders, functionToCall, callback)
+        } else {
+          callback()
+        }
+      })
   }
 
   // eslint-disable-next-line
@@ -268,14 +319,19 @@ const _BatchTransactionsForm = () => {
                   },
                   {
                     title: 'Status',
-                    dataIndex: 'paid',
+                    dataIndex: 'status',
                     key: 'status',
                     render: (value) => {
-                      console.log('Status', value)
-                      if (value === true) {
+                      if (value === 'Paid') {
                         return <CheckCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.success }} />
-                      } else if (value === false) {
-                        return <CloseCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.danger }} />
+                      } else if (value.indexOf('Error:') > -1) {
+                        return (
+                          <Popover content={<p>value</p>} title='DeSo Error'>
+                            <CloseCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.danger }} />
+                          </Popover>
+                        )
+                      } else {
+                        return <span style={{ color: theme.twitterBootstrap.info }}>{value}</span>
                       }
                     }
                   }

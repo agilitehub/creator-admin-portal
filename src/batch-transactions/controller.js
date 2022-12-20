@@ -50,8 +50,7 @@ export const payCeatorHodler = (senderKey, receiverKey, amount) => {
 
         resolve()
       } catch (e) {
-        console.log(e)
-        reject('Unknown Error Occured. Please check console')
+        reject(e)
       }
     })()
   })
@@ -74,8 +73,7 @@ export const payDaoHodler = (senderKey, receiverKey, amount) => {
 
         resolve()
       } catch (e) {
-        console.log(e)
-        reject('Unknown Error Occured. Please check console')
+        reject(e)
       }
     })()
   })
