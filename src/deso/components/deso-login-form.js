@@ -5,6 +5,7 @@ import { Form, Button, Row, Col, Spin } from 'antd'
 import Enums from '../../agilite-react/resources/enums'
 import { desoLogin, getSingleProfile, getDaoBalance } from '../controller'
 import BatchTransactions from '../../batch-transactions/components/app-wrapper'
+import DeSoOpsBanner from '../../agilite-react/resources/deso-ops-logo-transparent.png'
 
 const DeSoLoginForm = () => {
   const dispatch = useDispatch()
@@ -44,12 +45,13 @@ const DeSoLoginForm = () => {
   }
 
   return (
-    <div style={{ marginTop: 20 }}>
+    <div style={{ marginTop: 50 }}>
       <Row type='flex' justify='center'>
         <Col xs={24} sm={16} md={12} lg={8}>
           <div>
             <center>
-              <h2 style={{ color: '#7d7e81' }}>Welcome to the {process.env.REACT_APP_NAME}</h2>
+              <h1 style={{ color: '#7d7e81' }}>WELCOME TO</h1>
+              <img src={DeSoOpsBanner} alt='DeSo Ops' style={{ width: 300 }} />
             </center>
           </div>
           <br />
@@ -58,22 +60,23 @@ const DeSoLoginForm = () => {
               <Form.Item>
                 <Button
                   onClick={handleDesoLogin}
+                  size='large'
+                  disabled={loading}
                   style={{
-                    backgroundColor: 'blue',
-                    color: 'white',
-                    width: '100%',
-                    marginRight: 10,
+                    backgroundColor: loading ? 'lightgrey' : 'blue',
+                    color: loading ? 'grey' : 'white',
+                    width: 250,
                     borderRadius: 5,
-                    fontSize: 16,
+                    fontSize: 20,
                     height: 'auto'
                   }}
                 >
                   Sign In With DeSo
+                  {loading ? <Spin size='medium' style={{ position: 'absolute', top: '28%', right: '5%' }} /> : null}
                 </Button>
               </Form.Item>
             </Col>
           </Row>
-          {loading ? <Spin size='medium' style={{ position: 'absolute', left: '49%', top: '88%' }} /> : null}
         </Col>
       </Row>
     </div>
