@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react'
 import { Row, Col, Card, Select, Button, Popconfirm, Input, message, Table, Popover } from 'antd'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import theme from '../../agilite-react/resources/theme'
 import { getHodlers, payCeatorHodler, payDaoHodler } from '../controller'
 import { useDispatch, useSelector } from 'react-redux'
@@ -89,6 +90,15 @@ const _BatchTransactionsForm = () => {
 
       return null
     })
+  }
+
+  const handleCopyUsernames = () => {
+    const tmpResult = []
+    let result = null
+
+    for (const hodler of hodlers) tmpResult.push(`@${hodler.ProfileEntryResponse.Username}`)
+    result = tmpResult.length > 0 ? `${tmpResult.join(' ')} ` : 'No usernames to copy'
+    return result
   }
 
   const generateActions = () => {
@@ -294,8 +304,21 @@ const _BatchTransactionsForm = () => {
             </Col>
           </Row>
           {transactionType ? (
-            <Row justify='center' style={{ marginTop: 10 }}>
-              <Col>
+            <Row style={{ marginTop: 10 }}>
+              <Col xs={24} md={10} lg={8} style={{ textAlign: 'center' }}>
+                <CopyToClipboard
+                  text={handleCopyUsernames()}
+                  onCopy={() => message.info('Usernames copied to clipboard')}
+                >
+                  <Button
+                    disabled={isExecuting}
+                    style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.info }}
+                  >
+                    Copy usernames to clipboard
+                  </Button>
+                </CopyToClipboard>
+              </Col>
+              <Col xs={24} md={4} lg={8} style={{ textAlign: 'center' }}>
                 <Popconfirm
                   title='Are you sure you want to execute payments to the below Coin Holders?'
                   okText='Yes'
@@ -305,7 +328,7 @@ const _BatchTransactionsForm = () => {
                 >
                   <Button
                     disabled={isExecuting}
-                    style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success, marginLeft: 20 }}
+                    style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success }}
                   >
                     Execute Payment
                   </Button>

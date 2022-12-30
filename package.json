@@ -1,7 +1,7 @@
 {
   "name": "creator-admin-portal",
   "description": "DeSo Ops: An Admin Portal for DeSo Creators to manage various tasks related to their Coin Holders and supporters.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -43,6 +43,7 @@
     "deso-protocol": "^0.7.25",
     "immutability-helper": "3.1.1",
     "react": "17.0.2",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dnd": "14.0.5",
     "react-dnd-html5-backend": "14.1.0",
     "react-dom": "17.0.2",
