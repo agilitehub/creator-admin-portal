@@ -6,7 +6,7 @@ import { UnorderedListOutlined } from '@ant-design/icons'
 import Enums from './utils/enums'
 
 // Custom Components
-import BatchTransactions from './batch-transactions/components/app-wrapper'
+import BatchTransactions from './custom/batch-transactions/components/app-wrapper'
 
 // Custom Reducers
 

@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Form, Button, Row, Col, Spin } from 'antd'
 
-import AgiliteReactEnums from '../../agilite-react/resources/enums'
 import { desoLogin, getSingleProfile, getDaoBalance } from '../controller'
 import BatchTransactions from '../../batch-transactions/components/app-wrapper'
-import DeSoOpsBanner from '../../agilite-react/resources/deso-ops-logo-transparent.png'
-import Enums from '../../utils/enums'
-import theme from '../../agilite-react/resources/theme'
+import DeSoOpsBanner from '../../../agilite-react/resources/deso-ops-logo-transparent.png'
+import AgiliteReactEnums from '../../../agilite-react/resources/enums'
+import theme from '../../../agilite-react/resources/theme'
+import Enums from '../../../utils/enums'
 
 const DeSoLoginForm = () => {
   const dispatch = useDispatch()

@@ -1,13 +1,13 @@
 import React, { memo, useState } from 'react'
 import { Row, Col, Card, Select, Button, Popconfirm, Input, message, Table, Popover } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import theme from '../../agilite-react/resources/theme'
 import { getHodlers, payCeatorHodler, payDaoHodler } from '../controller'
 import { useDispatch, useSelector } from 'react-redux'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { getDaoBalance, getSingleProfile } from '../../deso/controller'
-import AgiliteReactEnums from '../../agilite-react/resources/enums'
-import Enums from '../../utils/enums'
+import AgiliteReactEnums from '../../../agilite-react/resources/enums'
+import theme from '../../../agilite-react/resources/theme'
+import Enums from '../../../utils/enums'
 
 const _BatchTransactionsForm = () => {
   const dispatch = useDispatch()

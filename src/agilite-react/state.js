@@ -3,8 +3,8 @@ import { initLeftMenuItems } from '../agilite-react-setup'
 import Theme from './resources/theme'
 
 // Components
-import DeSoLoginForm from '../deso/components/deso-login-form'
-import DesoToolbar from '../deso/components/deso-toolbar'
+import DeSoLoginForm from '../custom/deso/components/deso-login-form'
+import DesoToolbar from '../custom/deso/components/deso-toolbar'
 
 const state = {
   tabNavigation: {

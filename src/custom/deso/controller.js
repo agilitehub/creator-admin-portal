@@ -1,7 +1,7 @@
 import Axios from 'agilite-utils/axios'
 import Deso from 'deso-protocol'
-import Config from '../config/config.json'
-import Enums from '../utils/enums'
+import Config from '../../config/config.json'
+import Enums from '../../utils/enums'
 
 const deso = new Deso()
 

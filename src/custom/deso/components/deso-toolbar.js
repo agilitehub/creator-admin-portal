@@ -2,10 +2,10 @@ import { Button, Col, Row, Spin } from 'antd'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import AgiliteReactEnums from '../../agilite-react/resources/enums'
-import theme from '../../agilite-react/resources/theme'
 import { desoLogout, getDaoBalance, getSingleProfile } from '../controller'
-import Enums from '../../utils/enums'
+import AgiliteReactEnums from '../../../agilite-react/resources/enums'
+import theme from '../../../agilite-react/resources/theme'
+import Enums from '../../../utils/enums'
 
 // Components
 import DeSoLoginForm from './deso-login-form'
