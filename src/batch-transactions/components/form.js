@@ -6,8 +6,8 @@ import { getHodlers, payCeatorHodler, payDaoHodler } from '../controller'
 import { useDispatch, useSelector } from 'react-redux'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { getDaoBalance, getSingleProfile } from '../../deso/controller'
-import Enums from '../../agilite-react/resources/enums'
-import DesoEnums from '../../deso/enums'
+import AgiliteReactEnums from '../../agilite-react/resources/enums'
+import Enums from '../../utils/enums'
 
 const _BatchTransactionsForm = () => {
   const dispatch = useDispatch()
@@ -34,7 +34,7 @@ const _BatchTransactionsForm = () => {
       if (!value) return
 
       setLoading(true)
-      isDAOCoin = value === DesoEnums.values.DAO
+      isDAOCoin = value === Enums.values.DAO
       tmpHodlers = await getHodlers(desoState.profile.Profile.Username, isDAOCoin)
 
       if (tmpHodlers.Hodlers.length > 0) {
@@ -49,10 +49,10 @@ const _BatchTransactionsForm = () => {
             if (isDAOCoin) {
               noOfCoins = entry.BalanceNanosUint256
               noOfCoins = hexToInt(noOfCoins)
-              noOfCoins = noOfCoins / DesoEnums.values.NANO_VALUE / DesoEnums.values.NANO_VALUE
+              noOfCoins = noOfCoins / Enums.values.NANO_VALUE / Enums.values.NANO_VALUE
             } else {
               noOfCoins = entry.BalanceNanos
-              noOfCoins = noOfCoins / DesoEnums.values.NANO_VALUE
+              noOfCoins = noOfCoins / Enums.values.NANO_VALUE
             }
 
             // decimalCount = noOfCoins.countDecimals()
@@ -117,9 +117,9 @@ const _BatchTransactionsForm = () => {
               value={transactionType}
               style={{ width: 300 }}
             >
-              <Select.Option value={DesoEnums.values.EMPTY_STRING}>- Select Transaction Type -</Select.Option>
-              <Select.Option value={DesoEnums.values.CREATOR}>Pay Creator Coin Holders</Select.Option>
-              <Select.Option value={DesoEnums.values.DAO}>Pay DAO Coin Holders</Select.Option>
+              <Select.Option value={Enums.values.EMPTY_STRING}>- Select Transaction Type -</Select.Option>
+              <Select.Option value={Enums.values.CREATOR}>Pay Creator Coin Holders</Select.Option>
+              <Select.Option value={Enums.values.DAO}>Pay DAO Coin Holders</Select.Option>
             </Select>
           </center>
         </Col>
@@ -127,8 +127,8 @@ const _BatchTransactionsForm = () => {
           <center>
             <Popconfirm
               title='Are you sure you want to reset this Batch Transaction?'
-              okText={DesoEnums.values.YES}
-              cancelText={DesoEnums.values.NO}
+              okText={Enums.values.YES}
+              cancelText={Enums.values.NO}
               onConfirm={() => handleReset()}
             >
               <Button style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.danger }}>Reset</Button>
@@ -148,7 +148,7 @@ const _BatchTransactionsForm = () => {
 
   const handleAmount = (e) => {
     const amount = parseFloat(e.target.value)
-    const desoBalance = desoState.profile.Profile.DESOBalanceNanos / DesoEnums.values.NANO_VALUE
+    const desoBalance = desoState.profile.Profile.DESOBalanceNanos / Enums.values.NANO_VALUE
 
     if (desoBalance > amount) {
       setAmount(amount)
@@ -189,7 +189,7 @@ const _BatchTransactionsForm = () => {
 
     setHodlers(tmpHodlers)
 
-    if (transactionType === DesoEnums.values.DAO) {
+    if (transactionType === Enums.values.DAO) {
       functionToCall = payDaoHodler
     } else {
       functionToCall = payCeatorHodler
@@ -200,10 +200,10 @@ const _BatchTransactionsForm = () => {
 
       profile = await getSingleProfile(desoState.profile.Profile.PublicKeyBase58Check)
       daoData = await getDaoBalance(desoState.profile.Profile.PublicKeyBase58Check)
-      dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
+      dispatch({ type: AgiliteReactEnums.reducers.SET_PROFILE_DESO, payload: profile })
 
       dispatch({
-        type: Enums.reducers.SET_DESO_DATA,
+        type: AgiliteReactEnums.reducers.SET_DESO_DATA,
         payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance }
       })
 
@@ -278,10 +278,10 @@ const _BatchTransactionsForm = () => {
               <span style={{ fontSize: 15 }}>
                 <b>DeSo Balance: </b>
               </span>
-              {(desoState?.profile?.Profile?.DESOBalanceNanos / DesoEnums.values.NANO_VALUE).toFixed(2) +
+              {(desoState?.profile?.Profile?.DESOBalanceNanos / Enums.values.NANO_VALUE).toFixed(2) +
                 ' (~$' +
                 Math.floor(
-                  (desoState?.profile?.Profile?.DESOBalanceNanos / DesoEnums.values.NANO_VALUE) * desoState.desoPrice
+                  (desoState?.profile?.Profile?.DESOBalanceNanos / Enums.values.NANO_VALUE) * desoState.desoPrice
                 ) +
                 ') - $' +
                 desoState.desoPrice +

@@ -1,7 +1,6 @@
 import Axios from 'agilite-utils/axios'
 import Enums from '../utils/enums'
 import { getDeSo } from '../deso/controller'
-import DesoEnums from '../deso/enums'
 
 export const getHodlers = (Username, IsDAOCoin) => {
   return new Promise((resolve, reject) => {
@@ -10,7 +9,7 @@ export const getHodlers = (Username, IsDAOCoin) => {
       let errMsg = null
 
       try {
-        response = await Axios.post(DesoEnums.urls.GET_HODLERS, {
+        response = await Axios.post(Enums.urls.GET_HODLERS, {
           PublicKeyBase58Check: '',
           Username,
           LastPublicKeyBase58Check: '',
@@ -42,7 +41,7 @@ export const payCeatorHodler = (senderKey, receiverKey, amount) => {
         request = {
           SenderPublicKeyBase58Check: senderKey,
           RecipientPublicKeyOrUsername: receiverKey,
-          AmountNanos: Math.round(amount * DesoEnums.values.NANO_VALUE),
+          AmountNanos: Math.round(amount * Enums.values.NANO_VALUE),
           MinFeeRateNanosPerKB: 1000
         }
 
@@ -65,7 +64,7 @@ export const payDaoHodler = (senderKey, receiverKey, amount) => {
         request = {
           SenderPublicKeyBase58Check: senderKey,
           RecipientPublicKeyOrUsername: receiverKey,
-          AmountNanos: Math.round(amount * DesoEnums.values.NANO_VALUE),
+          AmountNanos: Math.round(amount * Enums.values.NANO_VALUE),
           MinFeeRateNanosPerKB: 1000
         }
 

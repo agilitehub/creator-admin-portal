@@ -2,10 +2,10 @@ import { Button, Col, Row, Spin } from 'antd'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Enums from '../../agilite-react/resources/enums'
+import AgiliteReactEnums from '../../agilite-react/resources/enums'
 import theme from '../../agilite-react/resources/theme'
 import { desoLogout, getDaoBalance, getSingleProfile } from '../controller'
-import DesoEnums from '../enums'
+import Enums from '../../utils/enums'
 
 // Components
 import DeSoLoginForm from './deso-login-form'
@@ -24,7 +24,7 @@ const DesoToolbar = () => {
     try {
       profile = await getSingleProfile(desoState.profile.Profile.PublicKeyBase58Check)
       await handleGetDoaBalance(desoState.profile.Profile.PublicKeyBase58Check)
-      dispatch({ type: Enums.reducers.SET_PROFILE_DESO, payload: profile })
+      dispatch({ type: AgiliteReactEnums.reducers.SET_PROFILE_DESO, payload: profile })
     } catch (e) {
       console.log(e)
     }
@@ -35,12 +35,12 @@ const DesoToolbar = () => {
   const handleDesoLogout = async () => {
     try {
       await desoLogout(desoState.profile.Profile.PublicKeyBase58Check)
-      dispatch({ type: Enums.reducers.SIGN_OUT_DESO })
+      dispatch({ type: AgiliteReactEnums.reducers.SIGN_OUT_DESO })
 
       dispatch({
-        type: Enums.reducers.ADD_TAB,
+        type: AgiliteReactEnums.reducers.ADD_TAB,
         payload: {
-          key: DesoEnums.tabKeys.DESO_LOGIN,
+          key: Enums.tabKeys.DESO_LOGIN,
           closable: false,
           title: '',
           content: <DeSoLoginForm />
@@ -58,7 +58,7 @@ const DesoToolbar = () => {
       data = await getDaoBalance(publicKey)
 
       dispatch({
-        type: Enums.reducers.SET_DESO_DATA,
+        type: AgiliteReactEnums.reducers.SET_DESO_DATA,
         payload: { desoPrice: data.desoPrice, daoBalance: data.daoBalance }
       })
     } catch (e) {

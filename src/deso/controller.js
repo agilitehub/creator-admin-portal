@@ -1,7 +1,7 @@
 import Axios from 'agilite-utils/axios'
 import Deso from 'deso-protocol'
 import Config from '../config/config.json'
-import DesoEnums from './enums'
+import Enums from '../utils/enums'
 
 const deso = new Deso()
 
@@ -24,15 +24,15 @@ export const desoLoginManual = () => {
   return new Promise((resolve, reject) => {
     ;(async () => {
       try {
-        window.open(DesoEnums.urls.LOGIN_URL)
+        window.open(Enums.urls.LOGIN_URL)
 
-        window.addEventListener(DesoEnums.events.MESSAGE, async (e) => {
-          if (e.data.method === DesoEnums.methods.INIT) {
+        window.addEventListener(Enums.events.MESSAGE, async (e) => {
+          if (e.data.method === Enums.methods.INIT) {
             e.source.postMessage(
-              { id: e.data.id, service: DesoEnums.values.IDENTITY, payload: {} },
-              DesoEnums.urls.IDENTITY_URL
+              { id: e.data.id, service: Enums.values.IDENTITY, payload: {} },
+              Enums.urls.IDENTITY_URL
             )
-          } else if (e.data.method === DesoEnums.values.LOGIN) {
+          } else if (e.data.method === Enums.values.LOGIN) {
             await e.source.close()
             resolve(e.data.payload)
           }
@@ -90,20 +90,20 @@ export const getDaoBalance = (publicKey) => {
       let daoBalance = 0
 
       try {
-        hodlerObject = await Axios.post(DesoEnums.urls.DAO_BALANCE, {
+        hodlerObject = await Axios.post(Enums.urls.DAO_BALANCE, {
           FetchAll: true,
           FetchHodlings: true,
           IsDAOCoin: true,
           PublicKeyBase58Check: publicKey
         })
 
-        exchangeObject = await Axios.get(DesoEnums.urls.EXCHANGE_RATE)
+        exchangeObject = await Axios.get(Enums.urls.EXCHANGE_RATE)
 
         if (hodlerObject.data.Hodlers.length > 0) {
           daoBalance = (
             parseInt(hodlerObject.data.Hodlers[0].BalanceNanosUint256) /
-            DesoEnums.values.NANO_VALUE /
-            DesoEnums.values.NANO_VALUE
+            Enums.values.NANO_VALUE /
+            Enums.values.NANO_VALUE
           ).toFixed(0)
 
           if (daoBalance < 1) daoBalance = 0
@@ -128,24 +128,24 @@ export const payDeso = (senderKey, receiverKey, amount, taskTransactionId, ghost
         request = {
           SenderPublicKeyBase58Check: senderKey,
           RecipientPublicKeyOrUsername: receiverKey,
-          AmountNanos: Math.round(amount * DesoEnums.values.NANO_VALUE),
+          AmountNanos: Math.round(amount * Enums.values.NANO_VALUE),
           MinFeeRateNanosPerKB: 1000
         }
 
         response = await deso.wallet.sendDesoRequest(request)
-        await Axios.post(`${Config.nodeRedUrl}${DesoEnums.routes.CREATE_PAYMENT_TRANSACTION}`, response, {
+        await Axios.post(`${Config.nodeRedUrl}${Enums.routes.CREATE_PAYMENT_TRANSACTION}`, response, {
           headers: {
-            type: DesoEnums.values.DESO,
-            [DesoEnums.headers.RECORD_ID]: taskTransactionId,
-            [DesoEnums.headers.GHOST_ID]: ghostId,
-            [DesoEnums.headers.TASK_ID]: taskId
+            type: Enums.values.DESO,
+            [Enums.headers.RECORD_ID]: taskTransactionId,
+            [Enums.headers.GHOST_ID]: ghostId,
+            [Enums.headers.TASK_ID]: taskId
           }
         })
 
         resolve()
       } catch (e) {
         console.log(e)
-        reject(DesoEnums.messages.UNKNOWN_ERROR)
+        reject(Enums.messages.UNKNOWN_ERROR)
       }
     })()
   })
@@ -164,25 +164,24 @@ export const payDaoCoin = (senderKey, receiverKey, amount, taskTransactionId, gh
           ReceiverPublicKeyBase58CheckOrUsername: receiverKey,
           // Hex String
           DAOCoinToTransferNanos:
-            DesoEnums.values.HEX_PREFIX +
-            (amount * DesoEnums.values.NANO_VALUE * DesoEnums.values.NANO_VALUE).toString(16),
+            Enums.values.HEX_PREFIX + (amount * Enums.values.NANO_VALUE * Enums.values.NANO_VALUE).toString(16),
           MinFeeRateNanosPerKB: 1000
         }
 
         response = await deso.dao.transferDAOCoin(request)
-        await Axios.post(`${Config.nodeRedUrl}${DesoEnums.routes.CREATE_PAYMENT_TRANSACTION}`, response, {
+        await Axios.post(`${Config.nodeRedUrl}${Enums.routes.CREATE_PAYMENT_TRANSACTION}`, response, {
           headers: {
-            type: DesoEnums.values.DAO,
-            [DesoEnums.headers.RECORD_ID]: taskTransactionId,
-            [DesoEnums.headers.GHOST_ID]: ghostId,
-            [DesoEnums.headers.TASK_ID]: taskId
+            type: Enums.values.DAO,
+            [Enums.headers.RECORD_ID]: taskTransactionId,
+            [Enums.headers.GHOST_ID]: ghostId,
+            [Enums.headers.TASK_ID]: taskId
           }
         })
 
         resolve()
       } catch (e) {
         console.log(e)
-        reject(DesoEnums.messages.UNKNOWN_ERROR)
+        reject(Enums.messages.UNKNOWN_ERROR)
       }
     })()
   })
