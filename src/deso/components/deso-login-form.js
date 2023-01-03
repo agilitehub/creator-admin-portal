@@ -6,6 +6,8 @@ import Enums from '../../agilite-react/resources/enums'
 import { desoLogin, getSingleProfile, getDaoBalance } from '../controller'
 import BatchTransactions from '../../batch-transactions/components/app-wrapper'
 import DeSoOpsBanner from '../../agilite-react/resources/deso-ops-logo-transparent.png'
+import DesoEnums from '../enums'
+import theme from '../../agilite-react/resources/theme'
 
 const DeSoLoginForm = () => {
   const dispatch = useDispatch()
@@ -31,7 +33,7 @@ const DeSoLoginForm = () => {
       dispatch({
         type: Enums.reducers.ADD_TAB,
         payload: {
-          key: 'batch_transactions',
+          key: DesoEnums.tabKeys.BATCH_TRANSACTIONS,
           closable: false,
           title: '',
           content: <BatchTransactions />
@@ -63,8 +65,8 @@ const DeSoLoginForm = () => {
                   size='large'
                   disabled={loading}
                   style={{
-                    backgroundColor: loading ? 'lightgrey' : 'blue',
-                    color: loading ? 'grey' : 'white',
+                    backgroundColor: loading ? theme.custom.lightgrey : theme.custom.blue,
+                    color: loading ? theme.custom.grey : theme.white,
                     width: 250,
                     borderRadius: 5,
                     fontSize: 20,

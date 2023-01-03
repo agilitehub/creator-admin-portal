@@ -9,8 +9,6 @@ import Enums from './utils/enums'
 import BatchTransactions from './batch-transactions/components/app-wrapper'
 
 // Custom Reducers
-import batchTransactionsReducer from './batch-transactions/reducer'
-import tableFormCRUDAppReducer from './examples/table-form-crud-app/reducer'
 
 export const initLeftMenuItems = () => {
   return [
@@ -43,8 +41,5 @@ export const generateContent = (key) => {
 }
 
 export const initCustomReducers = () => {
-  return {
-    batchTransactions: batchTransactionsReducer,
-    tableFormCRUDApp: tableFormCRUDAppReducer
-  }
+  return {}
 }

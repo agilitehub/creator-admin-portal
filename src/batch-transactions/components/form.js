@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { getDaoBalance, getSingleProfile } from '../../deso/controller'
 import Enums from '../../agilite-react/resources/enums'
+import DesoEnums from '../../deso/enums'
 
 const _BatchTransactionsForm = () => {
   const dispatch = useDispatch()
@@ -33,7 +34,7 @@ const _BatchTransactionsForm = () => {
       if (!value) return
 
       setLoading(true)
-      isDAOCoin = value === 'dao'
+      isDAOCoin = value === DesoEnums.values.DAO
       tmpHodlers = await getHodlers(desoState.profile.Profile.Username, isDAOCoin)
 
       if (tmpHodlers.Hodlers.length > 0) {
@@ -48,10 +49,10 @@ const _BatchTransactionsForm = () => {
             if (isDAOCoin) {
               noOfCoins = entry.BalanceNanosUint256
               noOfCoins = hexToInt(noOfCoins)
-              noOfCoins = noOfCoins / 1000000000 / 1000000000
+              noOfCoins = noOfCoins / DesoEnums.values.NANO_VALUE / DesoEnums.values.NANO_VALUE
             } else {
               noOfCoins = entry.BalanceNanos
-              noOfCoins = noOfCoins / 1000000000
+              noOfCoins = noOfCoins / DesoEnums.values.NANO_VALUE
             }
 
             // decimalCount = noOfCoins.countDecimals()
@@ -85,7 +86,6 @@ const _BatchTransactionsForm = () => {
 
       // Determine Estimated Payment
       if (tmpAmount > 0) estimatedPayment = calculateEstimatePayment(entry.noOfCoins, tmpCoinTotal, tmpAmount)
-      // decimalCount = estimatedPayment.countDecimals()
       entry.estimatedPayment = estimatedPayment
 
       return null
@@ -117,9 +117,9 @@ const _BatchTransactionsForm = () => {
               value={transactionType}
               style={{ width: 300 }}
             >
-              <Select.Option value=''>- Select Transaction Type -</Select.Option>
-              <Select.Option value='creator'>Pay Creator Coin Holders</Select.Option>
-              <Select.Option value='dao'>Pay DAO Coin Holders</Select.Option>
+              <Select.Option value={DesoEnums.values.EMPTY_STRING}>- Select Transaction Type -</Select.Option>
+              <Select.Option value={DesoEnums.values.CREATOR}>Pay Creator Coin Holders</Select.Option>
+              <Select.Option value={DesoEnums.values.DAO}>Pay DAO Coin Holders</Select.Option>
             </Select>
           </center>
         </Col>
@@ -127,8 +127,8 @@ const _BatchTransactionsForm = () => {
           <center>
             <Popconfirm
               title='Are you sure you want to reset this Batch Transaction?'
-              okText='Yes'
-              cancelText='No'
+              okText={DesoEnums.values.YES}
+              cancelText={DesoEnums.values.NO}
               onConfirm={() => handleReset()}
             >
               <Button style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.danger }}>Reset</Button>
@@ -148,7 +148,7 @@ const _BatchTransactionsForm = () => {
 
   const handleAmount = (e) => {
     const amount = parseFloat(e.target.value)
-    const desoBalance = desoState.profile.Profile.DESOBalanceNanos / 1000000000
+    const desoBalance = desoState.profile.Profile.DESOBalanceNanos / DesoEnums.values.NANO_VALUE
 
     if (desoBalance > amount) {
       setAmount(amount)
@@ -189,7 +189,7 @@ const _BatchTransactionsForm = () => {
 
     setHodlers(tmpHodlers)
 
-    if (transactionType === 'dao') {
+    if (transactionType === DesoEnums.values.DAO) {
       functionToCall = payDaoHodler
     } else {
       functionToCall = payCeatorHodler
@@ -278,9 +278,11 @@ const _BatchTransactionsForm = () => {
               <span style={{ fontSize: 15 }}>
                 <b>DeSo Balance: </b>
               </span>
-              {(desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000).toFixed(2) +
+              {(desoState?.profile?.Profile?.DESOBalanceNanos / DesoEnums.values.NANO_VALUE).toFixed(2) +
                 ' (~$' +
-                Math.floor((desoState?.profile?.Profile?.DESOBalanceNanos / 1000000000) * desoState.desoPrice) +
+                Math.floor(
+                  (desoState?.profile?.Profile?.DESOBalanceNanos / DesoEnums.values.NANO_VALUE) * desoState.desoPrice
+                ) +
                 ') - $' +
                 desoState.desoPrice +
                 ' Per $DESO'}

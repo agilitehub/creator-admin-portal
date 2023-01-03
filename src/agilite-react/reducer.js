@@ -2,11 +2,6 @@ import State from './state'
 import Enums from './resources/enums'
 import { closeTab, loadContent } from './controller'
 
-// Components
-import SignIn from '../examples/basic-sign-in-app/components/sign-in'
-import BatchTransactions from '../batch-transactions/components/app-wrapper'
-import DeSoToolbar from '../deso/components/deso-toolbar'
-
 const reducer = (state = State, action) => {
   let tmpObj = null
 
@@ -47,38 +42,6 @@ const reducer = (state = State, action) => {
           ...state.leftMenu,
           visible: false
         }
-      }
-    case Enums.reducers.SIGN_IN:
-      return {
-        ...state,
-        leftMenu: {
-          ...state.leftMenu,
-          leftMenuEnabled: true
-        },
-        tabNavigation: {
-          ...state.tabNavigation,
-          enabled: true
-        },
-        toolbar: {
-          ...state.toolbar,
-          customMenus: {
-            content: <DeSoToolbar />
-          }
-        },
-        rootContent: () => <BatchTransactions />
-      }
-    case Enums.reducers.SIGN_OUT:
-      return {
-        ...state,
-        leftMenu: {
-          ...state.leftMenu,
-          leftMenuEnabled: false
-        },
-        tabNavigation: {
-          ...state.tabNavigation,
-          enabled: false
-        },
-        rootContent: <SignIn />
       }
     case Enums.reducers.SIGN_IN_DESO:
       tmpObj = action.payload

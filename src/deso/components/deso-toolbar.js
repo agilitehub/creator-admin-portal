@@ -5,9 +5,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import Enums from '../../agilite-react/resources/enums'
 import theme from '../../agilite-react/resources/theme'
 import { desoLogout, getDaoBalance, getSingleProfile } from '../controller'
+import DesoEnums from '../enums'
+
+// Components
 import DeSoLoginForm from './deso-login-form'
 
-const DesoLogin = () => {
+const DesoToolbar = () => {
   const desoState = useSelector((state) => state.agiliteReact.deso)
   const loggedIn = useSelector((state) => state.agiliteReact.deso.loggedIn)
   const dispatch = useDispatch()
@@ -37,7 +40,7 @@ const DesoLogin = () => {
       dispatch({
         type: Enums.reducers.ADD_TAB,
         payload: {
-          key: 'deso_login',
+          key: DesoEnums.tabKeys.DESO_LOGIN,
           closable: false,
           title: '',
           content: <DeSoLoginForm />
@@ -96,4 +99,4 @@ const DesoLogin = () => {
   )
 }
 
-export default DesoLogin
+export default DesoToolbar

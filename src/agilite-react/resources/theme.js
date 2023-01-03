@@ -15,7 +15,11 @@ const theme = {
     warning: '#FFC20E',
     info: '#17A2B8'
   },
-  custom: {}
+  custom: {
+    lightgrey: 'lightgrey',
+    blue: 'blue',
+    grey: 'grey'
+  }
 }
 
 export default theme
