@@ -12,7 +12,7 @@ import Enums from '../../../utils/enums'
 const _BatchTransactionsForm = () => {
   const dispatch = useDispatch()
   const desoState = useSelector((state) => state.agiliteReact.deso)
-  const [transactionType, setTransactionType] = useState('')
+  const [transactionType, setTransactionType] = useState(Enums.values.EMPTY_STRING)
   const [hodlers, setHodlers] = useState([])
   const [amount, setAmount] = useState(0)
   const [coinTotal, setCoinTotal] = useState(0)
@@ -43,7 +43,7 @@ const _BatchTransactionsForm = () => {
           // Ignore entry if is current logged in user
           if (entry.ProfileEntryResponse.Username !== desoState.profile.Profile.Username) {
             // Set Defaults
-            entry.status = ''
+            entry.status = Enums.values.EMPTY_STRING
 
             // Determine Number of Coins
             if (isDAOCoin) {
@@ -139,7 +139,7 @@ const _BatchTransactionsForm = () => {
     )
   }
 
-  const handleReset = (tmpTransactionType = '') => {
+  const handleReset = (tmpTransactionType = Enums.values.EMPTY_STRING) => {
     setTransactionType(tmpTransactionType)
     setHodlers([])
     setAmount(0)
@@ -215,7 +215,7 @@ const _BatchTransactionsForm = () => {
   const handleExecuteExtended = (index, updatedHolders, functionToCall, callback) => {
     let publicKey = null
     let estimatedPayment = null
-    let status = ''
+    let status = Enums.values.EMPTY_STRING
 
     updatedHolders = updatedHolders.map((tmpHodler, tmpIndex) => {
       if (tmpIndex === index) {

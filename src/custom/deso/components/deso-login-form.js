@@ -35,7 +35,7 @@ const DeSoLoginForm = () => {
         payload: {
           key: Enums.tabKeys.BATCH_TRANSACTIONS,
           closable: false,
-          title: '',
+          title: Enums.values.EMPTY_STRING,
           content: <BatchTransactions />
         }
       })

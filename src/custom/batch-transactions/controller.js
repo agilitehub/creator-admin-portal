@@ -10,9 +10,9 @@ export const getHodlers = (Username, IsDAOCoin) => {
 
       try {
         response = await Axios.post(Enums.urls.GET_HODLERS, {
-          PublicKeyBase58Check: '',
+          PublicKeyBase58Check: Enums.values.EMPTY_STRING,
           Username,
-          LastPublicKeyBase58Check: '',
+          LastPublicKeyBase58Check: Enums.values.EMPTY_STRING,
           FetchHodlings: false,
           FetchAll: true,
           IsDAOCoin
