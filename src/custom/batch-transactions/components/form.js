@@ -183,7 +183,7 @@ const _BatchTransactionsForm = () => {
     tmpHodlers = hodlers.map((tmpHodler) => {
       return {
         ...tmpHodler,
-        status: ''
+        status: Enums.values.EMPTY_STRING
       }
     })
 
