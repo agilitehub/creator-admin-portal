@@ -42,7 +42,7 @@ const DesoToolbar = () => {
         payload: {
           key: Enums.tabKeys.DESO_LOGIN,
           closable: false,
-          title: '',
+          title: Enums.values.EMPTY_STRING,
           content: <DeSoLoginForm />
         }
       })
@@ -84,7 +84,7 @@ const DesoToolbar = () => {
                 <Button
                   type='default'
                   onClick={() => handleRefresh()}
-                  style={{ color: 'white', fontWeight: 'bold', backgroundColor: theme.primary }}
+                  style={{ color: theme.white, fontWeight: 'bold', backgroundColor: theme.primary }}
                 >
                   Refresh
                 </Button>
