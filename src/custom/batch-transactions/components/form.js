@@ -13,6 +13,7 @@ const _BatchTransactionsForm = () => {
   const dispatch = useDispatch()
   const desoState = useSelector((state) => state.agiliteReact.deso)
   const [transactionType, setTransactionType] = useState(Enums.values.EMPTY_STRING)
+  const [paymentType, setPaymentType] = useState(Enums.values.EMPTY_STRING)
   const [hodlers, setHodlers] = useState([])
   const [amount, setAmount] = useState(0)
   const [coinTotal, setCoinTotal] = useState(0)
@@ -76,6 +77,10 @@ const _BatchTransactionsForm = () => {
     setLoading(false)
   }
 
+  const handlePaymentTypeChange = (value) => {
+    setPaymentType(value)
+  }
+
   const updateHolderAmounts = (tmpHodlers, tmpCoinTotal, tmpAmount) => {
     let estimatedPayment = 0
 
@@ -103,19 +108,19 @@ const _BatchTransactionsForm = () => {
 
   const generateActions = () => {
     return (
-      <Row>
-        <Col xs={24} md={6}>
+      <Row justify='space-around'>
+        <Col>
           <center>
             <h3>Batch Payments</h3>
           </center>
         </Col>
-        <Col xs={24} md={12}>
+        <Col>
           <center>
             <Select
               disabled={!desoState.loggedIn || isExecuting}
               onChange={(value) => handleTransactionTypeChange(value)}
               value={transactionType}
-              style={{ width: 300 }}
+              style={{ width: 250 }}
             >
               <Select.Option value={Enums.values.EMPTY_STRING}>- Select Transaction Type -</Select.Option>
               <Select.Option value={Enums.values.CREATOR}>Pay Creator Coin Holders</Select.Option>
@@ -123,7 +128,22 @@ const _BatchTransactionsForm = () => {
             </Select>
           </center>
         </Col>
-        <Col xs={24} md={6}>
+        <Col>
+          <center>
+            <Select
+              disabled={!desoState.loggedIn || isExecuting}
+              onChange={(value) => handlePaymentTypeChange(value)}
+              value={paymentType}
+              style={{ width: 200 }}
+            >
+              <Select.Option value={Enums.values.EMPTY_STRING}>- Payment Type -</Select.Option>
+              <Select.Option value={Enums.values.DESO}>$DESO</Select.Option>
+              <Select.Option value={Enums.values.DAO}>DAO</Select.Option>
+              <Select.Option value={Enums.values.CREATOR}>Creator Coin</Select.Option>
+            </Select>
+          </center>
+        </Col>
+        <Col>
           <center>
             <Popconfirm
               title='Are you sure you want to reset this Batch Transaction?'
@@ -141,6 +161,7 @@ const _BatchTransactionsForm = () => {
 
   const handleReset = (tmpTransactionType = Enums.values.EMPTY_STRING) => {
     setTransactionType(tmpTransactionType)
+    setPaymentType(Enums.values.EMPTY_STRING)
     setHodlers([])
     setAmount(0)
     setCoinTotal(0)
@@ -233,7 +254,7 @@ const _BatchTransactionsForm = () => {
 
     setHodlers(updatedHolders)
 
-    functionToCall(desoState.profile.Profile.PublicKeyBase58Check, publicKey, estimatedPayment)
+    functionToCall(desoState.profile.Profile.PublicKeyBase58Check, publicKey, estimatedPayment, paymentType)
       .then(() => {
         status = 'Paid'
       })
@@ -263,6 +284,85 @@ const _BatchTransactionsForm = () => {
       })
   }
 
+  const generatePaymentTypeTitle = () => {
+    switch (paymentType) {
+      case Enums.values.EMPTY_STRING:
+        return 'Payment'
+      case Enums.values.DESO:
+        return 'Payment ($DESO)'
+      case Enums.values.DAO:
+        return 'Payment (DAO)'
+      case Enums.values.CREATOR:
+        return 'Payment (Creator Coin)'
+      default:
+        break
+    }
+  }
+
+  const generatePaymentTypeFieldTitle = () => {
+    switch (paymentType) {
+      case Enums.values.EMPTY_STRING:
+        return ''
+      case Enums.values.DESO:
+        return '$DESO'
+      case Enums.values.DAO:
+        return 'DAO'
+      case Enums.values.CREATOR:
+        return 'Creator Coin'
+      default:
+        break
+    }
+  }
+
+  const getBalanceMain = () => {
+    switch (paymentType) {
+      case Enums.values.DESO:
+        return handleGetDesoBalance()
+      case Enums.values.DAO:
+        return handleGetDaoBalance()
+      case Enums.values.CREATOR:
+        return handleGetCreatorCoinBalance()
+      default:
+        break
+    }
+  }
+
+  const handleGetDesoBalance = () => {
+    return (
+      <>
+        <span style={{ fontSize: 15 }}>
+          <b>DeSo Balance: </b>
+        </span>
+        {(desoState?.profile?.Profile?.DESOBalanceNanos / Enums.values.NANO_VALUE).toFixed(2) +
+          ' (~$' +
+          Math.floor((desoState?.profile?.Profile?.DESOBalanceNanos / Enums.values.NANO_VALUE) * desoState.desoPrice) +
+          ') - $' +
+          desoState.desoPrice +
+          ' Per $DESO'}
+      </>
+    )
+  }
+
+  const handleGetDaoBalance = () => {
+    return (
+      <>
+        <span style={{ fontSize: 15 }}>
+          <b>DAO Balance: {desoState.daoBalance}</b>
+        </span>
+      </>
+    )
+  }
+
+  const handleGetCreatorCoinBalance = () => {
+    return (
+      <>
+        <span style={{ fontSize: 15 }}>
+          <b>Creator Coin Balance: {coinTotal}</b>
+        </span>
+      </>
+    )
+  }
+
   // eslint-disable-next-line
   Number.prototype.countDecimals = function () {
     if (Math.floor(this.valueOf()) === this.valueOf()) return 0
@@ -274,19 +374,7 @@ const _BatchTransactionsForm = () => {
       <Col xs={24} sm={22} md={20} lg={16} xl={12}>
         <Card type='inner' title={generateActions()} style={{ marginTop: 20, padding: '16px 5px' }}>
           <Row>
-            <Col style={{ cursor: 'auto', marginLeft: 10 }}>
-              <span style={{ fontSize: 15 }}>
-                <b>DeSo Balance: </b>
-              </span>
-              {(desoState?.profile?.Profile?.DESOBalanceNanos / Enums.values.NANO_VALUE).toFixed(2) +
-                ' (~$' +
-                Math.floor(
-                  (desoState?.profile?.Profile?.DESOBalanceNanos / Enums.values.NANO_VALUE) * desoState.desoPrice
-                ) +
-                ') - $' +
-                desoState.desoPrice +
-                ' Per $DESO'}
-            </Col>
+            <Col style={{ cursor: 'auto', marginLeft: 10 }}>{getBalanceMain()}</Col>
           </Row>
           <Row justify='center'>
             <Col xs={16} md={12} lg={10} xl={8}>
@@ -296,8 +384,8 @@ const _BatchTransactionsForm = () => {
                 </span>
               </center>
               <Input
-                addonBefore='$DESO'
-                disabled={transactionType && !isExecuting ? false : true}
+                addonBefore={generatePaymentTypeFieldTitle()}
+                disabled={transactionType && paymentType && !isExecuting ? false : true}
                 placeholder='Amount'
                 type='number'
                 value={amount}
@@ -355,7 +443,7 @@ const _BatchTransactionsForm = () => {
                 key: 'percentOwnership'
               },
               {
-                title: 'Payment ($DESO)',
+                title: generatePaymentTypeTitle(),
                 dataIndex: 'estimatedPayment',
                 key: 'estimatedPayment',
                 render: (value) => {
