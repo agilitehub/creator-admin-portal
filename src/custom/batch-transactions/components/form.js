@@ -15,7 +15,7 @@ const _BatchTransactionsForm = () => {
   const [transactionType, setTransactionType] = useState(Enums.values.EMPTY_STRING)
   const [paymentType, setPaymentType] = useState(Enums.values.EMPTY_STRING)
   const [hodlers, setHodlers] = useState([])
-  const [amount, setAmount] = useState(0)
+  const [amount, setAmount] = useState('')
   const [coinTotal, setCoinTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [isExecuting, setIsExecuting] = useState(false)
@@ -163,19 +163,48 @@ const _BatchTransactionsForm = () => {
     setTransactionType(tmpTransactionType)
     setPaymentType(Enums.values.EMPTY_STRING)
     setHodlers([])
-    setAmount(0)
+    setAmount('')
     setCoinTotal(0)
   }
 
   const handleAmount = (e) => {
-    const amount = parseFloat(e.target.value)
+    setAmount(e.target.value)
+    updateHolderAmounts(hodlers, coinTotal, parseFloat(e.target.value))
+  }
+
+  const handleValidateAmount = (e) => {
+    const tmpAmount = parseFloat(amount)
     const desoBalance = desoState.profile.Profile.DESOBalanceNanos / Enums.values.NANO_VALUE
 
-    if (desoBalance > amount) {
-      setAmount(amount)
-      updateHolderAmounts(hodlers, coinTotal, amount)
-    } else {
-      message.error('Amount cannot be higher than $DESO Balance')
+    if (!tmpAmount) {
+      message.error('Please specify an Amount')
+      return false
+    }
+
+    switch (paymentType) {
+      case Enums.values.DESO:
+        if (desoBalance < tmpAmount) {
+          message.error('Amount cannot be higher than $DESO Balance')
+          return false
+        } else {
+          return true
+        }
+      case Enums.values.DAO:
+        if (desoState.daoBalance < tmpAmount) {
+          message.error('Amount cannot be higher than DAO Balance')
+          return false
+        } else {
+          return true
+        }
+      case Enums.values.CREATOR:
+        if (coinTotal < tmpAmount) {
+          message.error('Amount cannot be higher than Creator Coin Balance')
+          return false
+        } else {
+          return true
+        }
+      default:
+        break
     }
   }
 
@@ -196,6 +225,10 @@ const _BatchTransactionsForm = () => {
     let daoData = null
     let profile = null
     let functionToCall = null
+
+    if (!handleValidateAmount()) {
+      return
+    }
 
     setLoading(true)
     setIsExecuting(true)
@@ -387,7 +420,6 @@ const _BatchTransactionsForm = () => {
                 addonBefore={generatePaymentTypeFieldTitle()}
                 disabled={transactionType && paymentType && !isExecuting ? false : true}
                 placeholder='Amount'
-                type='number'
                 value={amount}
                 onChange={handleAmount}
               />
