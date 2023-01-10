@@ -504,7 +504,6 @@ const _BatchTransactionsForm = () => {
     try {
       response = await getNFTdetails(hex)
       nftEntries = await getNFTEntries(hex)
-      console.log(nftEntries)
       setNft(response)
 
       if (
