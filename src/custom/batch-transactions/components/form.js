@@ -169,7 +169,7 @@ const _BatchTransactionsForm = () => {
               >
                 <Select.Option value={Enums.values.EMPTY_STRING}>- Payment Type -</Select.Option>
                 <Select.Option value={Enums.values.DESO}>$DESO</Select.Option>
-                <Select.Option value={Enums.values.DAO}>DAO</Select.Option>
+                <Select.Option value={Enums.values.DAO}>DAO Coin</Select.Option>
                 <Select.Option value={Enums.values.CREATOR}>Creator Coin</Select.Option>
               </Select>
             </center>
