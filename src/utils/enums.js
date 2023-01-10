@@ -29,9 +29,10 @@ const Enums = {
     DESO_TYPE: '$DESO',
     DAO_TYPE: 'DAO',
     CREATOR_TYPE: 'Creator Coin',
+    NFT: 'nft',
     HEX_PREFIX: '0x',
-    YES: 'yes',
-    NO: 'no',
+    YES: 'Yes',
+    NO: 'No',
     EMPTY_STRING: ''
   },
   events: {

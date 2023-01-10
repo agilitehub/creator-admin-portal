@@ -187,6 +187,72 @@ export const payDaoCoin = (senderKey, receiverKey, amount, taskTransactionId, gh
   })
 }
 
+export const getNFTdetails = (postHashHex) => {
+  return new Promise((resolve, reject) => {
+    ;(async () => {
+      let request = null
+      let response = null
+
+      try {
+        request = {
+          PostHashHex: postHashHex
+        }
+
+        response = await deso.nft.getNftCollectionSummary(request)
+
+        resolve(response)
+      } catch (e) {
+        console.log(e)
+        reject(Enums.messages.UNKNOWN_ERROR)
+      }
+    })()
+  })
+}
+
+export const getNFTEntries = (postHashHex) => {
+  return new Promise((resolve, reject) => {
+    ;(async () => {
+      let request = null
+      let response = null
+
+      try {
+        request = {
+          PostHashHex: postHashHex
+        }
+
+        response = await deso.nft.getNftEntriesForPostHash(request)
+
+        resolve(response)
+      } catch (e) {
+        console.log(e)
+        reject(Enums.messages.UNKNOWN_ERROR)
+      }
+    })()
+  })
+}
+
+export const getUserStateless = (key) => {
+  return new Promise((resolve, reject) => {
+    ;(async () => {
+      let request = null
+      let response = null
+
+      try {
+        request = {
+          PublicKeyBase58Check: key
+        }
+
+        response = await deso.user.getSingleProfile(request)
+
+        resolve(response)
+      } catch (e) {
+        console.log(e)
+        reject(Enums.messages.UNKNOWN_ERROR)
+      }
+    })()
+  })
+}
+
 export const getDeSo = () => {
   return deso
 }
