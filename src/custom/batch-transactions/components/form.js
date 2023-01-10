@@ -570,7 +570,7 @@ const _BatchTransactionsForm = () => {
 
   return (
     <Row justify='center'>
-      <Col xs={24} sm={22} md={20} lg={16} xl={12}>
+      <Col xs={24} sm={22} md={20} lg={18} xl={16}>
         <Card type='inner' title={generateActions()} style={{ marginTop: 20, padding: '16px 5px' }}>
           <Row justify='center'>
             <Col style={{ cursor: 'auto', marginLeft: 10 }}>{getBalanceMain()}</Col>
@@ -600,60 +600,78 @@ const _BatchTransactionsForm = () => {
                   </span>
                 </center>
                 <Input.TextArea
-                  disabled={transactionType && paymentType && amount && !isExecuting ? false : true}
+                  disabled={transactionType && paymentType && !isExecuting ? false : true}
                   placeholder='NFT URL'
                   value={nftUrl}
                   onChange={(e) => {
                     setNftUrl(e.target.value)
                     handleGetNFT(e.target.value, amount)
                   }}
-                  rows={1}
+                  rows={3}
                 />
                 <span style={{ color: theme.twitterBootstrap.danger }}>{validationMessage}</span>
               </Col>
             ) : null}
           </Row>
           {nft ? (
-            <div style={{ marginTop: 20, marginBottom: 20 }}>
+            <Row justify='center' align='middle' style={{ marginTop: 20, marginBottom: 20 }}>
               {nft.NFTCollectionResponse.PostEntryResponse.ImageURLs.length > 0 ? (
-                <Row justify='center'>
-                  <Col>
-                    <img
-                      style={{ width: 300 }}
-                      alt='nft_image'
-                      src={nft.NFTCollectionResponse.PostEntryResponse.ImageURLs[0]}
-                    />
-                  </Col>
-                </Row>
-              ) : null}
-              <Row style={{ marginTop: 5 }} justify='center'>
                 <Col>
-                  <center>{nft.NFTCollectionResponse.PostEntryResponse.Body}</center>
+                  <img
+                    style={{ width: 300 }}
+                    alt='nft_image'
+                    src={nft.NFTCollectionResponse.PostEntryResponse.ImageURLs[0]}
+                  />
                 </Col>
-              </Row>
-            </div>
-          ) : null}
-          {transactionType ? (
-            <Row style={{ marginTop: 20 }} justify='center'>
-              <Col xs={24} md={4} lg={8} style={{ textAlign: 'center' }}>
-                <Popconfirm
-                  title={`Are you sure you want to execute payments to the below ${
-                    transactionType === Enums.values.NFT ? 'NFT Owners?' : 'Coin Holders?'
-                  }`}
-                  okText='Yes'
-                  cancelText='No'
-                  onConfirm={handleExecute}
-                  disabled={isExecuting || validationMessage || !transactionType || !paymentType}
-                >
-                  <Button
-                    disabled={isExecuting || validationMessage || !transactionType || !paymentType}
-                    style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success }}
-                  >
-                    Execute Payment
-                  </Button>
-                </Popconfirm>
+              ) : null}
+              <Col style={{ marginLeft: 20 }}>
+                <center>{nft.NFTCollectionResponse.PostEntryResponse.Body}</center>
               </Col>
             </Row>
+          ) : null}
+          {transactionType ? (
+            <>
+              <Row style={{ marginTop: 20 }} justify='center'>
+                <Col xs={24} md={4} lg={8} style={{ textAlign: 'center' }}>
+                  <Popconfirm
+                    title={`Are you sure you want to execute payments to the below ${
+                      transactionType === Enums.values.NFT ? 'NFT Owners?' : 'Coin Holders?'
+                    }`}
+                    okText='Yes'
+                    cancelText='No'
+                    onConfirm={handleExecute}
+                    disabled={isExecuting || validationMessage || !transactionType || !paymentType}
+                  >
+                    <p style={{ color: theme.twitterBootstrap.primary }}>
+                      Step {transactionType !== Enums.values.NFT ? '4' : '5'}
+                    </p>
+                    <Button
+                      disabled={isExecuting || validationMessage || !transactionType || !paymentType}
+                      style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success }}
+                    >
+                      Execute Payment
+                    </Button>
+                  </Popconfirm>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={24} style={{ marginTop: 10 }}>
+                  <center>
+                    <CopyToClipboard
+                      text={handleCopyUsernames()}
+                      onCopy={() => message.info('Usernames copied to clipboard')}
+                    >
+                      <Button
+                        disabled={isExecuting || validationMessage}
+                        style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.info }}
+                      >
+                        Copy usernames to clipboard
+                      </Button>
+                    </CopyToClipboard>
+                  </center>
+                </Col>
+              </Row>
+            </>
           ) : null}
           {transactionType !== Enums.values.NFT ? (
             <Table
@@ -747,23 +765,6 @@ const _BatchTransactionsForm = () => {
               pagination={false}
             />
           )}
-          <Row>
-            <Col span={24} style={{ marginTop: 10 }}>
-              <center>
-                <CopyToClipboard
-                  text={handleCopyUsernames()}
-                  onCopy={() => message.info('Usernames copied to clipboard')}
-                >
-                  <Button
-                    disabled={isExecuting || validationMessage}
-                    style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.info }}
-                  >
-                    Copy usernames to clipboard
-                  </Button>
-                </CopyToClipboard>
-              </center>
-            </Col>
-          </Row>
         </Card>
       </Col>
     </Row>
