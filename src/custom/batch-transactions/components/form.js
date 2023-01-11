@@ -211,6 +211,8 @@ const _BatchTransactionsForm = () => {
   const handleValidateAmount = (e) => {
     const tmpAmount = parseFloat(amount)
     const desoBalance = desoState.profile.Profile.DESOBalanceNanos / Enums.values.NANO_VALUE
+    const daoBalance = desoState.daoBalance / Enums.values.NANO_VALUE
+    const creatorCoinBalance = desoState.creatorCoinBalance / Enums.values.NANO_VALUE
 
     if (!tmpAmount) {
       message.error('Please specify an Amount')
@@ -226,14 +228,14 @@ const _BatchTransactionsForm = () => {
           return true
         }
       case Enums.values.DAO:
-        if (desoState.daoBalance < tmpAmount) {
+        if (daoBalance < tmpAmount) {
           message.error('Amount cannot be higher than DAO Balance')
           return false
         } else {
           return true
         }
       case Enums.values.CREATOR:
-        if (desoState.creatorCoinBalance < tmpAmount) {
+        if (creatorCoinBalance < tmpAmount) {
           message.error('Amount cannot be higher than Creator Coin Balance')
           return false
         } else {
@@ -463,7 +465,7 @@ const _BatchTransactionsForm = () => {
     return (
       <>
         <span style={{ fontSize: 15 }}>
-          <b>Creator Coin Balance: {desoState.creatorCoinBalance / 1000000000}</b>
+          <b>Creator Coin Balance: {desoState.creatorCoinBalance / Enums.values.NANO_VALUE}</b>
         </span>
       </>
     )
@@ -752,7 +754,7 @@ const _BatchTransactionsForm = () => {
                       return <CheckCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.success }} />
                     } else if (value.indexOf('Error:') > -1) {
                       return (
-                        <Popover content={<p>value</p>} title='DeSo Error'>
+                        <Popover content={<p>{value}</p>} title='DeSo Error'>
                           <CloseCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.danger }} />
                         </Popover>
                       )
@@ -797,7 +799,7 @@ const _BatchTransactionsForm = () => {
                       return <CheckCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.success }} />
                     } else if (value.indexOf('Error:') > -1) {
                       return (
-                        <Popover content={<p>value</p>} title='DeSo Error'>
+                        <Popover content={<p>{value}</p>} title='DeSo Error'>
                           <CloseCircleOutlined style={{ fontSize: 20, color: theme.twitterBootstrap.danger }} />
                         </Popover>
                       )
