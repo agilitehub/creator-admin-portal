@@ -787,7 +787,12 @@ const _BatchTransactionsForm = () => {
                   dataIndex: 'estimatedPayment',
                   key: 'estimatedPayment',
                   render: (value) => {
-                    return <span style={{ color: theme.twitterBootstrap.primary }}>{value}</span>
+                    return (
+                      <span style={{ color: theme.twitterBootstrap.primary }}>
+                        {value}{' '}
+                        {paymentType === Enums.values.DESO ? `(~$${(value * desoState.desoPrice).toFixed(2)})` : null}
+                      </span>
+                    )
                   }
                 },
                 {
