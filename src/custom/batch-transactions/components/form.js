@@ -84,8 +84,13 @@ const _BatchTransactionsForm = () => {
 
   const handlePaymentTypeChange = (value) => {
     setPaymentType(value)
-    updateHolderAmounts(hodlers, coinTotal, parseFloat(''))
     setAmount('')
+
+    if (transactionType === Enums.values.NFT) {
+      handleGetNFT(nftUrl, '')
+    } else {
+      updateHolderAmounts(hodlers, coinTotal, parseFloat(''))
+    }
   }
 
   const updateHolderAmounts = (tmpHodlers, tmpCoinTotal, tmpAmount) => {
@@ -482,6 +487,7 @@ const _BatchTransactionsForm = () => {
     let ownerEntryCount = 0
 
     setValidationMessage('')
+    setNft(null)
 
     if (!url) return
 
