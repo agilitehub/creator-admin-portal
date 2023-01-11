@@ -123,7 +123,7 @@ export const payDaoHodler = (senderKey, receiverKey, amount, type) => {
             request = {
               SenderPublicKeyBase58Check: senderKey,
               CreatorPublicKeyBase58Check: senderKey,
-              CreatorCoinToTransferNanos: amount,
+              CreatorCoinToTransferNanos: parseInt((amount * Enums.values.NANO_VALUE).toFixed(0)),
               ReceiverUsernameOrPublicKeyBase58Check: receiverKey,
               MinFeeRateNanosPerKB: 1000
             }

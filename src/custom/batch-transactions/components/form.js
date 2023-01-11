@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { Row, Col, Card, Select, Button, Popconfirm, Input, message, Table, Popover, Divider } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { getHodlers, payCeatorHodler, payDaoHodler } from '../controller'
@@ -70,7 +70,7 @@ const _BatchTransactionsForm = () => {
           return null
         })
 
-        updateHolderAmounts(finalHodlers, tmpCoinTotal)
+        updateHolderAmounts(finalHodlers.concat(), tmpCoinTotal)
       }
 
       setHodlers(finalHodlers)
@@ -89,7 +89,7 @@ const _BatchTransactionsForm = () => {
     if (transactionType === Enums.values.NFT) {
       handleGetNFT(nftUrl, '')
     } else {
-      updateHolderAmounts(hodlers, coinTotal, parseFloat(''))
+      updateHolderAmounts(hodlers.concat(), coinTotal, parseFloat(''))
     }
   }
 
@@ -107,6 +107,8 @@ const _BatchTransactionsForm = () => {
 
       return null
     })
+
+    setHodlers(tmpHodlers)
   }
 
   const handleCopyUsernames = () => {
@@ -198,20 +200,20 @@ const _BatchTransactionsForm = () => {
     setCoinTotal(0)
   }
 
-  const handleAmount = (value) => {
-    setAmount(value)
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      switch (transactionType) {
+        case Enums.values.NFT:
+          handleGetNFT(nftUrl, amount)
+          break
+        default:
+          updateHolderAmounts(hodlers.concat(), coinTotal, parseFloat(amount))
+      }
+    }, 1000)
 
-    switch (transactionType) {
-      case Enums.values.NFT:
-        const delayDebounceFn = setTimeout(() => {
-          handleGetNFT(nftUrl, value)
-        }, 2000)
-
-        return () => clearTimeout(delayDebounceFn)
-      default:
-        updateHolderAmounts(hodlers, coinTotal, parseFloat(value))
-    }
-  }
+    return () => clearTimeout(delayDebounceFn)
+    // eslint-disable-next-line
+  }, [amount])
 
   const handleValidateAmount = (e) => {
     const tmpAmount = parseFloat(amount)
@@ -622,7 +624,9 @@ const _BatchTransactionsForm = () => {
                 disabled={transactionType && paymentType && !isExecuting ? false : true}
                 placeholder='Amount'
                 value={amount}
-                onChange={(e) => handleAmount(e.target.value)}
+                onChange={(e) => {
+                  setAmount(e.target.value)
+                }}
               />
             </Col>
             {transactionType === Enums.values.NFT ? (
