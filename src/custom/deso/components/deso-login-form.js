@@ -8,6 +8,7 @@ import DeSoOpsBanner from '../../../agilite-react/resources/deso-ops-logo-transp
 import AgiliteReactEnums from '../../../agilite-react/resources/enums'
 import theme from '../../../agilite-react/resources/theme'
 import Enums from '../../../utils/enums'
+import { getHodlers } from '../../batch-transactions/controller'
 
 const DeSoLoginForm = () => {
   const dispatch = useDispatch()
@@ -24,7 +25,9 @@ const DeSoLoginForm = () => {
       response = await desoLogin()
       profile = await getSingleProfile(response.key)
       result = await getDaoBalance(profile.Profile.PublicKeyBase58Check)
-      response = { profile, daoBalance: result.daoBalance, desoPrice: result.desoPrice }
+      response = { profile, daoBalance: result.daoBalance, desoPrice: result.desoPrice, creatorCoinBalance: 0 }
+
+      handleGetDoaBalance(profile)
 
       dispatch({
         type: AgiliteReactEnums.reducers.SIGN_IN_DESO,
@@ -44,6 +47,32 @@ const DeSoLoginForm = () => {
     }
 
     setLoading(false)
+  }
+
+  const handleGetDoaBalance = async (profile) => {
+    let daoData = null
+    let creatorCoinData = null
+    let creatorCoinBalance = 0
+
+    try {
+      daoData = await getDaoBalance(profile.Profile.PublicKeyBase58Check)
+      creatorCoinData = await getHodlers(profile.Profile.Username, false)
+
+      creatorCoinData.Hodlers.map((entry) => {
+        if (entry.HODLerPublicKeyBase58Check === profile.Profile.PublicKeyBase58Check) {
+          creatorCoinBalance = entry.BalanceNanos
+        }
+
+        return null
+      })
+
+      dispatch({
+        type: AgiliteReactEnums.reducers.SET_DESO_DATA,
+        payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance, creatorCoinBalance }
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   return (

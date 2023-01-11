@@ -109,7 +109,7 @@ export const getDaoBalance = (publicKey) => {
           if (daoBalance < 1) daoBalance = 0
         }
 
-        resolve({ daoBalance, desoPrice: exchangeObject.data.USDCentsPerDeSoExchangeRate / 100 })
+        resolve({ daoBalance, desoPrice: exchangeObject.data.USDCentsPerDeSoExchangeRate / 100, creatorCoinBalance: 0 })
       } catch (e) {
         reject(e)
         console.log(e)

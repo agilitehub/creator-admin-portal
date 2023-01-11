@@ -84,6 +84,8 @@ const _BatchTransactionsForm = () => {
 
   const handlePaymentTypeChange = (value) => {
     setPaymentType(value)
+    updateHolderAmounts(hodlers, coinTotal, parseFloat(''))
+    setAmount('')
   }
 
   const updateHolderAmounts = (tmpHodlers, tmpCoinTotal, tmpAmount) => {
@@ -566,6 +568,26 @@ const _BatchTransactionsForm = () => {
     setIsExecuting(false)
   }
 
+  const validateExecution = () => {
+    switch (transactionType) {
+      case Enums.values.NFT:
+        if (nftUrl && nftOwners.length > 0) {
+          return false
+        } else {
+          return true
+        }
+      case Enums.values.DAO:
+      case Enums.values.CREATOR:
+        if (hodlers.length > 0) {
+          return false
+        } else {
+          return true
+        }
+      default:
+        return true
+    }
+  }
+
   // eslint-disable-next-line
   Number.prototype.countDecimals = function () {
     if (Math.floor(this.valueOf()) === this.valueOf()) return 0
@@ -644,13 +666,27 @@ const _BatchTransactionsForm = () => {
                     okText='Yes'
                     cancelText='No'
                     onConfirm={handleExecute}
-                    disabled={isExecuting || validationMessage || !transactionType || !paymentType}
+                    disabled={
+                      isExecuting ||
+                      validationMessage ||
+                      !transactionType ||
+                      !paymentType ||
+                      !amount ||
+                      validateExecution()
+                    }
                   >
                     <p style={{ color: theme.twitterBootstrap.primary }}>
                       Step {transactionType !== Enums.values.NFT ? '4' : '5'}
                     </p>
                     <Button
-                      disabled={isExecuting || validationMessage || !transactionType || !paymentType}
+                      disabled={
+                        isExecuting ||
+                        validationMessage ||
+                        !transactionType ||
+                        !paymentType ||
+                        !amount ||
+                        validateExecution()
+                      }
                       style={{ color: theme.white, backgroundColor: theme.twitterBootstrap.success }}
                     >
                       Execute Payment
@@ -699,7 +735,12 @@ const _BatchTransactionsForm = () => {
                   dataIndex: 'estimatedPayment',
                   key: 'estimatedPayment',
                   render: (value) => {
-                    return <span style={{ color: theme.twitterBootstrap.primary }}>{value}</span>
+                    return (
+                      <span style={{ color: theme.twitterBootstrap.primary }}>
+                        {value}{' '}
+                        {paymentType === Enums.values.DESO ? `(~$${(value * desoState.desoPrice).toFixed(2)})` : null}
+                      </span>
+                    )
                   }
                 },
                 {
