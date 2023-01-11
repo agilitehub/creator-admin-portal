@@ -39,7 +39,8 @@ const state = {
     loggedIn: false,
     profile: null,
     desoPrice: 0,
-    daoBalance: 0
+    daoBalance: 0,
+    creatorCoinBalance: 0
   }
 }
 

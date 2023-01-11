@@ -9,6 +9,7 @@ import Enums from '../../../utils/enums'
 
 // Components
 import DeSoLoginForm from './deso-login-form'
+import { getHodlers } from '../../batch-transactions/controller'
 
 const DesoToolbar = () => {
   const desoState = useSelector((state) => state.agiliteReact.deso)
@@ -52,14 +53,25 @@ const DesoToolbar = () => {
   }
 
   const handleGetDoaBalance = async (publicKey) => {
-    let data = null
+    let daoData = null
+    let creatorCoinData = null
+    let creatorCoinBalance = 0
 
     try {
-      data = await getDaoBalance(publicKey)
+      daoData = await getDaoBalance(publicKey)
+      creatorCoinData = await getHodlers(desoState.profile.Profile.Username, false)
+
+      creatorCoinData.Hodlers.map((entry) => {
+        if (entry.HODLerPublicKeyBase58Check === desoState.profile.Profile.PublicKeyBase58Check) {
+          creatorCoinBalance = entry.BalanceNanos
+        }
+
+        return null
+      })
 
       dispatch({
         type: AgiliteReactEnums.reducers.SET_DESO_DATA,
-        payload: { desoPrice: data.desoPrice, daoBalance: data.daoBalance }
+        payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance, creatorCoinBalance }
       })
     } catch (e) {
       console.log(e)

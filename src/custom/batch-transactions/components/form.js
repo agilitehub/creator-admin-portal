@@ -231,7 +231,7 @@ const _BatchTransactionsForm = () => {
           return true
         }
       case Enums.values.CREATOR:
-        if (coinTotal < tmpAmount) {
+        if (desoState.creatorCoinBalance < tmpAmount) {
           message.error('Amount cannot be higher than Creator Coin Balance')
           return false
         } else {
@@ -257,6 +257,8 @@ const _BatchTransactionsForm = () => {
   const handleExecute = async () => {
     let tmpHodlers = null
     let daoData = null
+    let creatorCoinData = null
+    let creatorCoinBalance = 0
     let profile = null
     let functionToCall = null
 
@@ -301,11 +303,20 @@ const _BatchTransactionsForm = () => {
 
       profile = await getSingleProfile(desoState.profile.Profile.PublicKeyBase58Check)
       daoData = await getDaoBalance(desoState.profile.Profile.PublicKeyBase58Check)
-      dispatch({ type: AgiliteReactEnums.reducers.SET_PROFILE_DESO, payload: profile })
+      creatorCoinData = await getHodlers(desoState.profile.Profile.Username, false)
 
+      creatorCoinData.Hodlers.map((entry) => {
+        if (entry.HODLerPublicKeyBase58Check === desoState.profile.Profile.PublicKeyBase58Check) {
+          creatorCoinBalance = entry.BalanceNanos
+        }
+
+        return null
+      })
+
+      dispatch({ type: AgiliteReactEnums.reducers.SET_PROFILE_DESO, payload: profile })
       dispatch({
         type: AgiliteReactEnums.reducers.SET_DESO_DATA,
-        payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance }
+        payload: { desoPrice: daoData.desoPrice, daoBalance: daoData.daoBalance, creatorCoinBalance }
       })
 
       setLoading(false)
@@ -450,7 +461,7 @@ const _BatchTransactionsForm = () => {
     return (
       <>
         <span style={{ fontSize: 15 }}>
-          <b>Creator Coin Balance: {coinTotal}</b>
+          <b>Creator Coin Balance: {desoState.creatorCoinBalance / 1000000000}</b>
         </span>
       </>
     )
@@ -515,30 +526,24 @@ const _BatchTransactionsForm = () => {
         for (const entry of nftEntries.NFTEntryResponses) {
           const user = await getUserStateless(entry.OwnerPublicKeyBase58Check)
 
-          ownerEntryCount++
-
-          // TODO: Enable this again
           // Exclude logged in User's NFT entries
-          // if (
-          //   response.SerialNumberToNFTEntryResponse[prop].OwnerPublicKeyBase58Check !==
-          //   desoState.profile.Profile.PublicKeyBase58Check
-          // ) {
+          if (entry.OwnerPublicKeyBase58Check !== desoState.profile.Profile.PublicKeyBase58Check) {
+            ownerEntryCount++
 
-          // }
+            tmpIndex = tmpNftOwners.findIndex((entry) => entry.username === user.Profile.Username)
 
-          tmpIndex = tmpNftOwners.findIndex((entry) => entry.username === user.Profile.Username)
-
-          if (tmpIndex > -1) {
-            tmpNftOwners[tmpIndex].owned++
-          } else {
-            tmpNftOwners.push({
-              ...entry,
-              key: user.Profile.PublicKeyBase58Check,
-              owned: 1,
-              status: '',
-              username: user.Profile.Username,
-              estimatedPayment: 0
-            })
+            if (tmpIndex > -1) {
+              tmpNftOwners[tmpIndex].owned++
+            } else {
+              tmpNftOwners.push({
+                ...entry,
+                key: user.Profile.PublicKeyBase58Check,
+                owned: 1,
+                status: '',
+                username: user.Profile.Username,
+                estimatedPayment: 0
+              })
+            }
           }
         }
 

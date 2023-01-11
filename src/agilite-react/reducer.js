@@ -80,7 +80,8 @@ const reducer = (state = State, action) => {
         deso: {
           ...state.deso,
           desoPrice: action.payload.desoPrice,
-          daoBalance: action.payload.daoBalance
+          daoBalance: action.payload.daoBalance,
+          creatorCoinBalance: action.payload.creatorCoinBalance
         }
       }
     default:
