@@ -211,7 +211,7 @@ const _BatchTransactionsForm = () => {
   const handleValidateAmount = (e) => {
     const tmpAmount = parseFloat(amount)
     const desoBalance = desoState.profile.Profile.DESOBalanceNanos / Enums.values.NANO_VALUE
-    const daoBalance = desoState.daoBalance / Enums.values.NANO_VALUE
+    const daoBalance = desoState.daoBalance
     const creatorCoinBalance = desoState.creatorCoinBalance / Enums.values.NANO_VALUE
 
     if (!tmpAmount) {
